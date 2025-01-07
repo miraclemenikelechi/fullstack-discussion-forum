@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
+from strawberry.fastapi import GraphQLRouter
 
 from auth.login_route import router as authentication_router
 from threads.route import router as threads_router

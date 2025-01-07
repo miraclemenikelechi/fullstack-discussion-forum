@@ -8,4 +8,5 @@ dependencies = [
     "fastapi[standard]>=0.115.6",
     "fastapi-plugins>=0.13.1",
     "sqlmodel>=0.0.22",
+    "strawberry-graphql[fastapi]>=0.256.1",
 ]
