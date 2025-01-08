@@ -5,8 +5,13 @@ router = APIRouter(prefix="/threads", tags=["thread"])
 
 
 @router.get("/threads")
-async def get_thread():
+async def get_all_threads():
     return "get all"
+
+
+@router.get("/{slug}")
+async def get_thread(slug: str):
+    return f"get {slug}"
 
 
 @router.post("/new")

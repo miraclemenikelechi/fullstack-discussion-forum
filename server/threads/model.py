@@ -27,9 +27,9 @@ class Comment(SQLModel, table=True):
     author: str = Field()  # TODO: the author of the comment should be a user model
     content: str = Field()
 
-    thread: Thread | None = Relationship(back_populates="comments")
-    thread_id: UUID | None = Field(default=None, foreign_key="thread.id")
     replies: list["Reply"] = Relationship(back_populates="comment")
+    thread_id: UUID | None = Field(default=None, foreign_key="thread.id")
+    thread: Thread | None = Relationship(back_populates="comments")
 
 
 # reply model to represent a reply to a comment on a thread
@@ -41,10 +41,21 @@ class Reply(SQLModel, table=True):
     author: str = Field()  # TODO: the author of the reply should be a user model
     content: str = Field()
 
-    comment_id: UUID | None = Relationship(back_populates="comment.id")
+    comment_id: UUID | None = Field(foreign_key="comment.id")
+    comment: Comment | None = Relationship(back_populates="replies")
 
 
 class ThreadCreate(BaseModel):
     author: str = Field()
-    description: str = Field()
+    content: str = Field()
     title: str = Field()
+
+
+class CommentCreate:
+    author: str = Field()
+    content: str = Field()
+
+
+class ReplyCreate:
+    author: str = Field()
+    content: str = Field()
