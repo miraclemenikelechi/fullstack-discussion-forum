@@ -1,14 +1,18 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
-from strawberry.fastapi import GraphQLRouter
 
-from auth.login_route import router as authentication_router
-from threads.route import router as threads_router
+from config.database import create_db_and_tables
 
 
-app = FastAPI()
-app.include_router(authentication_router)
-app.include_router(threads_router)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    create_db_and_tables()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 @app.get("/")
