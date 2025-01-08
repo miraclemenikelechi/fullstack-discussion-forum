@@ -1,7 +1,7 @@
 import os
 
 from sqlalchemy import Engine
-from sqlmodel import SQLModel, create_engine  # noqa: F401
+from sqlmodel import SQLModel, create_engine
 
 db_file_name: str = "database.sqlite"
 db_file_dir: str = "assets"
