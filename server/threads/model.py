@@ -97,3 +97,11 @@ class AllThreadsResponse(BaseModel):
     content: str
     created_at: str
     title: str
+
+
+class ThreadCreateResponse(BaseModel):
+    author: str
+    comments: list[CommentsResponse]
+    content: str
+    id: str
+    title: str

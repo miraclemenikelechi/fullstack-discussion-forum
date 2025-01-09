@@ -1,15 +1,15 @@
 from fastapi import APIRouter
 
 from core.depedencies import DATABASE_SESSION_DEPENDENCY
-from threads.controller import all_threads_from_db, create_a_new_thread
+from threads.controller import all_threads_from_db, create_a_new_thread, get_a_thread
 from utils.response import ResponseAPI
 
-from .model import ThreadCreate, AllThreadsResponse
+from .model import ThreadCreate
 
 router = APIRouter(prefix="/threads", tags=["thread"])
 
 
-@router.get(path="/", response_model=AllThreadsResponse)
+@router.get(path="/")
 async def get_all_threads(session: DATABASE_SESSION_DEPENDENCY):  # type: ignore
     try:
         request = await all_threads_from_db(db_access=session)
@@ -25,7 +25,7 @@ async def get_all_threads(session: DATABASE_SESSION_DEPENDENCY):  # type: ignore
     except Exception as error:
         return ResponseAPI(
             status_code=500,
-            message=f"error getting all threads: {error}",
+            message=f"error getting all threads <<==>> {error}",
             success=False,
         ).response()
 
@@ -48,14 +48,30 @@ async def create_thread(data: ThreadCreate, session: DATABASE_SESSION_DEPENDENCY
     except Exception as error:
         return ResponseAPI(
             status_code=500,
-            message=f"error getting all threads: {error}",
+            message=f"error creating your thread at this time <<==>> {error}",
             success=False,
         ).response()
 
 
 @router.get("/{thread_id}")
-async def get_thread(thread_id: str):
-    return f"get {thread_id}"
+async def get_thread(thread_id: str, session: DATABASE_SESSION_DEPENDENCY):  # type: ignore
+    try:
+        request = await get_a_thread(data_to_fetch_in_db=thread_id, db_access=session)
+
+        if request is not None:
+            return ResponseAPI(
+                message=f"thread `{request["id"]}` by `{request["author"]}`",
+                data=request,
+                status_code=201,
+                success=True,
+            )
+
+    except Exception as error:
+        return ResponseAPI(
+            status_code=500,
+            message=f"cannot get thread `{thread_id}` <<==>> {error}",
+            success=False,
+        ).response()
 
 
 @router.patch("/{thread_id}")
