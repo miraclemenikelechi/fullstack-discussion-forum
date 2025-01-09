@@ -21,13 +21,13 @@ class Thread(SQLModel, table=True):
         return {
             "id": str(self.id),
             "author": self.author,
+            "comments": [comment.to_dict() for comment in self.comments]
+            if self.comments
+            else [],
             "content": self.content,
             "created_at": self.created_at.isoformat(),
             "title": self.title,
             "updated_at": self.updated_at.isoformat(),
-            "comments": [comment.to_dict() for comment in self.comments]
-            if self.comments
-            else [],
         }
 
 

@@ -43,9 +43,6 @@ def create(
         db.rollback()  # roll back the transaction in case of an error
         raise error
 
-    finally:  # ensure the database session is closed
-        db.close()
-
 
 def transact_by_param(
     db,
@@ -100,6 +97,3 @@ def transact_by_param(
 
     except Exception as error:
         raise error
-
-    finally:  # close the database session
-        db.close()
