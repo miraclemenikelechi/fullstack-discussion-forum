@@ -6,7 +6,9 @@ from .model import Thread
 
 
 async def all_threads_from_db(db_access: Session):
-    return crud.transact_by_param(db=db_access, table=Thread)
+    return [
+        data.to_dict() for data in crud.transact_by_param(db=db_access, table=Thread)
+    ]
 
 
 async def create_a_new_thread(data_to_create_in_db: dict, db_access: Session):

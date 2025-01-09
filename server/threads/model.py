@@ -17,6 +17,19 @@ class Thread(SQLModel, table=True):
 
     comments: list["Comment"] = Relationship(back_populates="thread")
 
+    def to_dict(self):
+        return {
+            "id": str(self.id),
+            "author": self.author,
+            "content": self.content,
+            "created_at": self.created_at.isoformat(),
+            "title": self.title,
+            "updated_at": self.updated_at.isoformat(),
+            "comments": [comment.to_dict() for comment in self.comments]
+            if self.comments
+            else [],
+        }
+
 
 # comment model to represent a comment on a thread
 class Comment(SQLModel, table=True):
@@ -31,6 +44,9 @@ class Comment(SQLModel, table=True):
     thread_id: UUID | None = Field(default=None, foreign_key="thread.id")
     thread: Thread | None = Relationship(back_populates="comments")
 
+    def to_dict(self):
+        return {}
+
 
 # reply model to represent a reply to a comment on a thread
 class Reply(SQLModel, table=True):
@@ -43,6 +59,12 @@ class Reply(SQLModel, table=True):
 
     comment_id: UUID | None = Field(foreign_key="comment.id")
     comment: Comment | None = Relationship(back_populates="replies")
+
+    def to_dict(self):
+        return {}
+
+
+# requests
 
 
 class ThreadCreate(BaseModel):
@@ -59,3 +81,19 @@ class CommentCreate:
 class ReplyCreate:
     author: str = Field()
     content: str = Field()
+
+
+# responses
+
+
+class CommentsResponse(BaseModel):
+    pass
+
+
+class AllThreadsResponse(BaseModel):
+    id: str
+    author: str
+    comments: list[CommentsResponse]
+    content: str
+    created_at: str
+    title: str

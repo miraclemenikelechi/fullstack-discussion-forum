@@ -4,17 +4,15 @@ from core.depedencies import DATABASE_SESSION_DEPENDENCY
 from threads.controller import all_threads_from_db, create_a_new_thread
 from utils.response import ResponseAPI
 
-from .model import ThreadCreate
+from .model import ThreadCreate, AllThreadsResponse
 
 router = APIRouter(prefix="/threads", tags=["thread"])
 
 
-@router.get("/")
+@router.get(path="/", response_model=AllThreadsResponse)
 async def get_all_threads(session: DATABASE_SESSION_DEPENDENCY):  # type: ignore
     try:
         request = await all_threads_from_db(db_access=session)
-
-        print(request)
 
         if request is not None:
             return ResponseAPI(
