@@ -11,4 +11,4 @@ def db_session() -> Generator[Session, Any, None]:
         yield session
 
 
-DATABASE_SESSION_DEPENDENCY: Session = Annotated[Session, Depends[db_session]]
+DATABASE_SESSION_DEPENDENCY: Session = Annotated[Session, Depends(db_session)]
