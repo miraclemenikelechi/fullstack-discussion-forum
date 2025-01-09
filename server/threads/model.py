@@ -67,10 +67,10 @@ class Reply(SQLModel, table=True):
 # requests
 
 
-class ThreadCreate(BaseModel):
-    author: str = Field()
-    content: str = Field()
-    title: str = Field()
+class ThreadCreate(SQLModel):
+    author: str = Field(..., min_length=3, max_length=50, description="Author name")
+    content: str = Field(..., min_length=10, description="Thread content")
+    title: str = Field(..., min_length=5, max_length=100, description="Thread title")
 
 
 class CommentCreate:

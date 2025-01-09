@@ -38,6 +38,7 @@ def create(
 
         if not isinstance(data, list):
             db.refresh(created)  # refresh the created object to ensure it's up-to-date
+            return created  # return the created data
 
     except Exception as error:
         db.rollback()  # roll back the transaction in case of an error

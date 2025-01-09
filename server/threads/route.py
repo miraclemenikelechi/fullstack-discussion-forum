@@ -32,10 +32,25 @@ async def get_all_threads(session: DATABASE_SESSION_DEPENDENCY):  # type: ignore
 
 @router.post("/")
 async def create_thread(data: ThreadCreate, session: DATABASE_SESSION_DEPENDENCY):  # type: ignore
-    await create_a_new_thread(
-        data_to_create_in_db=data, db_access=DATABASE_SESSION_DEPENDENCY
-    )
-    return data
+    try:
+        request = await create_a_new_thread(
+            data_to_create_in_db=data, db_access=session
+        )
+
+        if request is not None:
+            return ResponseAPI(
+                message=f"thread `{request["id"]}` by user `{request["author"]}` has been created!",
+                data=request,
+                status_code=201,
+                success=True,
+            )
+
+    except Exception as error:
+        return ResponseAPI(
+            status_code=500,
+            message=f"error getting all threads: {error}",
+            success=False,
+        ).response()
 
 
 @router.get("/{thread_id}")
