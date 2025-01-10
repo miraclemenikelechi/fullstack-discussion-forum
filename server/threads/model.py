@@ -73,6 +73,11 @@ class ThreadCreate(SQLModel):
     title: str = Field(..., min_length=5, max_length=100, description="Thread title")
 
 
+class ThreadUpdate(SQLModel):
+    content: str = Field(..., min_length=10, description="Thread content")
+    title: str = Field(..., min_length=5, max_length=100, description="Thread title")
+
+
 class CommentCreate:
     author: str = Field()
     content: str = Field()

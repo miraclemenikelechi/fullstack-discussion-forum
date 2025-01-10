@@ -1,9 +1,24 @@
 from datetime import datetime
+from typing import Any
 
 from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 
 from core.constants import STATUS_CODE
+
+
+class ResponseDataModel(BaseModel):
+    timestamp: datetime
+    status_code: int
+    message: str
+    data: Any = None
+
+
+class ResponseApiModel(BaseModel):
+    response_data: ResponseDataModel
+    status_code: int
+    success: bool
 
 
 class ResponseAPI:
