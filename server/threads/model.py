@@ -1,7 +1,6 @@
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel
 from sqlmodel import Field, Relationship, SQLModel
 
 
@@ -64,9 +63,6 @@ class Reply(SQLModel, table=True):
         return {}
 
 
-# requests
-
-
 class ThreadCreate(SQLModel):
     author: str = Field(..., min_length=3, max_length=50, description="Author name")
     content: str = Field(..., min_length=10, description="Thread content")
@@ -86,27 +82,3 @@ class CommentCreate:
 class ReplyCreate:
     author: str = Field()
     content: str = Field()
-
-
-# responses
-
-
-class CommentsResponse(BaseModel):
-    pass
-
-
-class AllThreadsResponse(BaseModel):
-    id: str
-    author: str
-    comments: list[CommentsResponse]
-    content: str
-    created_at: str
-    title: str
-
-
-class ThreadCreateResponse(BaseModel):
-    author: str
-    comments: list[CommentsResponse]
-    content: str
-    id: str
-    title: str

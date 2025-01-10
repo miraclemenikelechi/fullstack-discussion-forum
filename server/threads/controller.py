@@ -52,6 +52,9 @@ async def get_a_thread(data_to_fetch_in_db: str, db_access: Session):
             single=True,
         )
 
+        if response is None:
+            raise ValueError(f"thread `{data_to_fetch_in_db}` does not exist.")
+
         return {
             "author": response.author,
             "comments": response.comments,
@@ -125,6 +128,26 @@ async def delete_a_thread(data_to_fetch_in_db: str, db_access: Session):
         return {
             "id": str(response.id),
         }
+
+    except Exception as error:
+        raise error
+
+
+async def get_all_comments_from_thread(data_to_fetch_in_db: str, db_access: Session):
+    try:
+        response: Thread = crud.transact_by_param(
+            db=db_access,
+            arg="id",
+            table=Thread,
+            op="==",
+            param=UUID(data_to_fetch_in_db),
+            single=True,
+        )
+
+        if response is None:
+            raise ValueError(f"thread `{data_to_fetch_in_db}` does not exist.")
+
+        return {"id": str(response.id), "comments": response.comments}
 
     except Exception as error:
         raise error

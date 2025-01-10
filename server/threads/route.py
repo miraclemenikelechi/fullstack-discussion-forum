@@ -6,6 +6,7 @@ from threads.controller import (
     create_a_new_thread,
     delete_a_thread,
     get_a_thread,
+    get_all_comments_from_thread,
     update_a_thread,
 )
 from utils.response import ResponseAPI, ResponseApiModel, ResponseDataModel
@@ -71,6 +72,13 @@ async def get_thread(thread_id: str, session: DATABASE_SESSION_DEPENDENCY):  # t
                 status_code=200,
                 success=True,
             )
+
+    except ValueError as error:
+        return ResponseAPI(
+            status_code=404,
+            message=f"{error}",
+            success=False,
+        ).response()
 
     except Exception as error:
         return ResponseAPI(
@@ -146,9 +154,19 @@ async def delete_thread(thread_id: str, session: DATABASE_SESSION_DEPENDENCY):  
 
 
 @router.get("/{thread_id}/comments")
-async def get_thread_comments(comment_id: str):
+async def get_thread_comments(thread_id: str, session: DATABASE_SESSION_DEPENDENCY):  # type: ignore
     try:
-        pass
+        request = await get_all_comments_from_thread(
+            data_to_fetch_in_db=thread_id, db_access=session
+        )
+
+        if request is not None:
+            return ResponseAPI(
+                message=f"all comments from thread `{request["id"]}`.",
+                data=request,
+                status_code=200,
+                success=True,
+            ).response()
 
     except Exception as error:
         return ResponseAPI(
