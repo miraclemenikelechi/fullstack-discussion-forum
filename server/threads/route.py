@@ -4,14 +4,15 @@ from core.depedencies import DATABASE_SESSION_DEPENDENCY
 from threads.controller import (
     all_threads_from_db,
     create_a_new_thread,
+    create_comment_in_a_thread,
     delete_a_thread,
     get_a_thread,
-    get_all_comments_from_thread,
+    get_all_comments_from_a_thread,
     update_a_thread,
 )
 from utils.response import ResponseAPI, ResponseApiModel, ResponseDataModel
 
-from .model import ThreadCreate, ThreadUpdate
+from .model import CommentCreate, ThreadCreate, ThreadUpdate
 
 router = APIRouter(prefix="/threads", tags=["thread"])
 
@@ -153,10 +154,12 @@ async def delete_thread(thread_id: str, session: DATABASE_SESSION_DEPENDENCY):  
         ).response()
 
 
-@router.get("/{thread_id}/comments")
+@router.get(
+    path="/{thread_id}/comments", status_code=200, response_model=ResponseDataModel
+)
 async def get_thread_comments(thread_id: str, session: DATABASE_SESSION_DEPENDENCY):  # type: ignore
     try:
-        request = await get_all_comments_from_thread(
+        request = await get_all_comments_from_a_thread(
             data_to_fetch_in_db=thread_id, db_access=session
         )
 
@@ -168,6 +171,13 @@ async def get_thread_comments(thread_id: str, session: DATABASE_SESSION_DEPENDEN
                 success=True,
             ).response()
 
+    except ValueError as error:
+        return ResponseAPI(
+            status_code=404,
+            message=f"{error}",
+            success=False,
+        ).response()
+
     except Exception as error:
         return ResponseAPI(
             status_code=500,
@@ -177,9 +187,32 @@ async def get_thread_comments(thread_id: str, session: DATABASE_SESSION_DEPENDEN
 
 
 @router.post("/{thread_id}/comments")
-async def create_thread_comment(comment_id: str):
+async def create_thread_comment(
+    thread_id: str,
+    comment_create: CommentCreate,
+    session: DATABASE_SESSION_DEPENDENCY,  # type: ignore
+):
     try:
-        pass
+        request = await create_comment_in_a_thread(
+            data_to_fetch_in_db=thread_id,
+            data_to_update_in_db=comment_create,
+            db_access=session,
+        )
+
+        if request is not None:
+            return ResponseAPI(
+                message="comment `{comment_id}` created in response to thread `{thread_id}`",
+                data=request,
+                status_code=201,
+                success=True,
+            ).response()
+
+    except ValueError as error:
+        return ResponseAPI(
+            status_code=404,
+            message=f"{error}",
+            success=False,
+        ).response()
 
     except Exception as error:
         return ResponseAPI(

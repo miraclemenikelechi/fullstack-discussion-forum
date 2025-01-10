@@ -44,7 +44,17 @@ class Comment(SQLModel, table=True):
     thread: Thread | None = Relationship(back_populates="comments")
 
     def to_dict(self):
-        return {}
+        return {
+            "id": str(self.id),
+            "author": self.author,
+            "content": self.content,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+            "thread_id": str(self.thread_id) if self.thread_id else None,
+            "replies": [reply.to_dict() for reply in self.replies]
+            if self.replies
+            else [],
+        }
 
 
 # reply model to represent a reply to a comment on a thread
@@ -74,7 +84,7 @@ class ThreadUpdate(SQLModel):
     title: str = Field(..., min_length=5, max_length=100, description="Thread title")
 
 
-class CommentCreate:
+class CommentCreate(SQLModel):
     author: str = Field()
     content: str = Field()
 

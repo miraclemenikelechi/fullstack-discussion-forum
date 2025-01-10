@@ -1,11 +1,7 @@
 from sqlmodel import select
 
 
-def create(
-    data,
-    db,
-    table,
-):
+def create(data, db, table):
     """
     Creates a new object in the database based on the provided data.
 
@@ -45,14 +41,7 @@ def create(
         raise error
 
 
-def transact_by_param(
-    db,
-    table,
-    arg=None,
-    op=None,
-    param=None,
-    single=False,
-):
+def transact_by_param(db, table, arg=None, op=None, param=None, single=False):
     """
     Transact with the database based on the provided parameters.
 
@@ -98,3 +87,25 @@ def transact_by_param(
 
     except Exception as error:
         raise error
+
+
+def exists(arg, db, param, table):
+    """
+    Checks if a record exists in the specified database table based on a given parameter.
+
+    This function utilizes the `transact_by_param` function to query the database and
+    determine if any record matches the specified criteria. It specifically checks for
+    existence using the equality operator ("==").
+    
+    Args:
+        arg (str): The name of the attribute (column) in the database table to filter by.
+        db (Session): The database session used for executing the query.
+        param (Any): The value to compare against the specified attribute in the query.
+        table (SQLModel): The SQLModel class representing the database table to check.
+
+    Returns:
+        bool: True if at least one record exists that matches the criteria; False otherwise.
+    """
+    return transact_by_param(
+        arg=arg, db=db, op="==", param=param, single=True, table=table
+    )
