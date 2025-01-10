@@ -1,5 +1,5 @@
 from datetime import datetime
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from sqlmodel import Session
 
@@ -85,7 +85,7 @@ async def update_a_thread(
         for (
             key,
             value,
-        ) in data_to_update_in_db.dict().items():
+        ) in data_to_update_in_db.model_dump().items():
             setattr(
                 response, key, value
             )  # response: Thread from db, key: what keys to update, value: values to be changed
@@ -107,7 +107,24 @@ async def update_a_thread(
 
 async def delete_a_thread(data_to_fetch_in_db: str, db_access: Session):
     try:
-        pass
+        response: Thread = crud.transact_by_param(
+            db=db_access,
+            arg="id",
+            table=Thread,
+            op="==",
+            param=UUID(data_to_fetch_in_db),
+            single=True,
+        )
+
+        if response is None:
+            raise ValueError(f"thread `{data_to_fetch_in_db}` does not exist.")
+
+        db_access.delete(response)
+        db_access.commit()
+
+        return {
+            "id": str(response.id),
+        }
 
     except Exception as error:
         raise error

@@ -4,6 +4,7 @@ from core.depedencies import DATABASE_SESSION_DEPENDENCY
 from threads.controller import (
     all_threads_from_db,
     create_a_new_thread,
+    delete_a_thread,
     get_a_thread,
     update_a_thread,
 )
@@ -35,7 +36,7 @@ async def get_all_threads(session: DATABASE_SESSION_DEPENDENCY):  # type: ignore
         ).response()
 
 
-@router.post("/", status_code=201, response_model=ResponseApiModel)
+@router.post(path="/", status_code=201, response_model=ResponseApiModel)
 async def create_thread(data: ThreadCreate, session: DATABASE_SESSION_DEPENDENCY):  # type: ignore
     try:
         request = await create_a_new_thread(
@@ -58,7 +59,7 @@ async def create_thread(data: ThreadCreate, session: DATABASE_SESSION_DEPENDENCY
         ).response()
 
 
-@router.get("/{thread_id}", status_code=200, response_model=ResponseApiModel)
+@router.get(path="/{thread_id}", status_code=200, response_model=ResponseApiModel)
 async def get_thread(thread_id: str, session: DATABASE_SESSION_DEPENDENCY):  # type: ignore
     try:
         request = await get_a_thread(data_to_fetch_in_db=thread_id, db_access=session)
@@ -79,7 +80,7 @@ async def get_thread(thread_id: str, session: DATABASE_SESSION_DEPENDENCY):  # t
         ).response()
 
 
-@router.patch("/{thread_id}")
+@router.patch(path="/{thread_id}", status_code=202, response_model=ResponseDataModel)
 async def edit_thread(
     thread_id: str,
     thread_update: ThreadUpdate,
@@ -96,7 +97,7 @@ async def edit_thread(
             return ResponseAPI(
                 message=f"thread `{request["id"]}` has been updated.",
                 data=request,
-                status_code=200,
+                status_code=202,
                 success=True,
             ).response()
 
@@ -110,15 +111,31 @@ async def edit_thread(
     except Exception as error:
         return ResponseAPI(
             status_code=500,
-            message=f"{error}",
+            message=f"error updating thread `{request["id"]}` <<==>> {error}",
             success=False,
         ).response()
 
 
-@router.delete("/{thread_id}")
-async def delete_thread(thread_id: str):
+@router.delete(path="/{thread_id}", status_code=200, response_model=ResponseDataModel)
+async def delete_thread(thread_id: str, session: DATABASE_SESSION_DEPENDENCY):  # type: ignore
     try:
-        pass
+        request = await delete_a_thread(
+            data_to_fetch_in_db=thread_id, db_access=session
+        )
+
+        if request is not None:
+            return ResponseAPI(
+                message=f"thread `{request["id"]}` has been deleted.",
+                status_code=200,
+                success=True,
+            ).response()
+
+    except ValueError as error:
+        return ResponseAPI(
+            status_code=404,
+            message=f"{error}",
+            success=False,
+        ).response()
 
     except Exception as error:
         return ResponseAPI(
