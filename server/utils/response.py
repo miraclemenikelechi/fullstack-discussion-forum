@@ -55,10 +55,10 @@ class ResponseAPI:
             success (bool, optional): Indicates if the response is successful. Defaults to None, which will be treated as False.
         """
         self.response_data = {
-            "timestamp": datetime.now().isoformat(),
-            "status_code": status_code,
-            "message": message,
             "data": data,
+            "message": message,
+            "status_code": status_code,
+            "timestamp": datetime.now().isoformat(),
         }
 
         if additional_data:

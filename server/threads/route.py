@@ -6,6 +6,7 @@ from threads.controller import (
     create_a_new_thread,
     create_a_reply_to_comment_in_a_thread,
     create_comment_in_a_thread,
+    delete_a_reply_from_comment_in_a_thread,
     delete_a_thread,
     delete_comment_from_a_thread,
     get_a_thread,
@@ -306,7 +307,11 @@ async def get_comment_replies(
         ).response()
 
 
-@router.post("/{thread_id}/comments/{comment_id}/replies")
+@router.post(
+    path="/{thread_id}/comments/{comment_id}/replies",
+    status_code=201,
+    response_model=ResponseDataModel,
+)
 async def create_comment_reply(
     thread_id: str,
     comment_id: str,
@@ -345,9 +350,32 @@ async def create_comment_reply(
 
 
 @router.delete("/{thread_id}/comments/{comment_id}/replies/{reply_id}")
-async def delete_comment_reply():
+async def delete_comment_reply(
+    thread_id: str,
+    comment_id: str,
+    reply_id: str,
+    session: DATABASE_SESSION_DEPENDENCY,  # type: ignore
+):
     try:
-        pass
+        request = await delete_a_reply_from_comment_in_a_thread(
+            data_to_fetch_in_db=comment_id,
+            data_to_transact_with_in_db=reply_id,
+            db_access=session,
+        )
+
+        if request is not None:
+            return ResponseAPI(
+                message=f"reply `{request["id"]}` to comment `{request["comment_id"]}` has been deleted from thread `{thread_id}`",
+                status_code=200,
+                success=True,
+            ).response()
+
+    except ValueError as error:
+        return ResponseAPI(
+            message=f"{error}",
+            status_code=404,
+            success=False,
+        ).response()
 
     except Exception as error:
         return ResponseAPI(

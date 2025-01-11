@@ -5,7 +5,6 @@ from uuid import UUID
 from sqlmodel import Session
 
 from core import crud
-from utils.print import print_json
 
 from .model import Comment, Reply, Thread
 
@@ -306,6 +305,44 @@ async def create_a_reply_to_comment_in_a_thread(
             "created_at": str(db_reply.created_at),
             "id": str(db_reply.id),
             "updated_at": str(db_reply.updated_at),
+        }
+
+    except Exception as error:
+        raise error
+
+
+async def delete_a_reply_from_comment_in_a_thread(
+    data_to_fetch_in_db: str, data_to_transact_with_in_db: str, db_access: Session
+):
+    try:
+        is_comment: Comment = crud.exists(
+            arg="id", db=db_access, param=UUID(data_to_fetch_in_db), table=Comment
+        )
+
+        if not bool(is_comment):
+            raise ValueError(f"comment `{data_to_fetch_in_db}` does not exist.")
+
+        db_reply: Reply = next(
+            (
+                reply
+                for reply in is_comment.replies
+                if reply.id == UUID(data_to_transact_with_in_db)
+            ),
+            None,
+        )
+
+        if db_reply is None:
+            raise ValueError(
+                f"reply `{data_to_transact_with_in_db}` does not exist on comment `{data_to_fetch_in_db}' in thread `{str(is_comment.thread_id)}`"
+            )
+
+        db_access.delete(db_reply)
+        db_access.commit()
+
+        return {
+            "comment_id": str(is_comment.id),
+            "id": str(db_reply.id),
+            "thread_id": str(is_comment.thread_id),
         }
 
     except Exception as error:
