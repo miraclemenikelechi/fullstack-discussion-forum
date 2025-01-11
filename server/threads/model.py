@@ -70,7 +70,14 @@ class Reply(SQLModel, table=True):
     comment: Comment | None = Relationship(back_populates="replies")
 
     def to_dict(self):
-        return {}
+        return {
+            "author": self.author,
+            "comment_id": str(self.comment_id) if self.comment_id else None,
+            "content": self.content,
+            "created_at": self.created_at.isoformat(),
+            "id": str(self.id),
+            "updated_at": self.updated_at.isoformat(),
+        }
 
 
 class ThreadCreate(SQLModel):

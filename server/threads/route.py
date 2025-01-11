@@ -9,6 +9,7 @@ from threads.controller import (
     delete_comment_from_a_thread,
     get_a_thread,
     get_all_comments_from_a_thread,
+    get_all_replies_from_comment_in_a_thread,
     update_a_thread,
 )
 from utils.response import ResponseAPI, ResponseApiModel, ResponseDataModel
@@ -166,7 +167,7 @@ async def get_thread_comments(thread_id: str, session: DATABASE_SESSION_DEPENDEN
 
         if request is not None:
             return ResponseAPI(
-                data=request,
+                data=request["comments"],
                 message=f"all comments from thread `{request["id"]}`.",
                 status_code=200,
                 success=True,
@@ -244,7 +245,7 @@ async def delete_thread_comment(
 
         if request is not None:
             return ResponseAPI(
-                message=f"comment `{request["id"]}` has been deleted from thread `{request["thread_id"]}`.",
+                message=f"comment `{request["id"]}` has been deleted from thread `{request["thread_id"]}`",
                 status_code=200,
                 success=True,
             ).response()
@@ -264,10 +265,37 @@ async def delete_thread_comment(
         ).response()
 
 
-@router.get("/{thread_id}/comments/{comment_id}/replies")
-async def get_comment_reply():
+@router.get(
+    path="/{thread_id}/comments/{comment_id}/replies",
+    status_code=200,
+    response_model=ResponseDataModel,
+)
+async def get_comment_replies(
+    thread_id: str,
+    comment_id: str,
+    session: DATABASE_SESSION_DEPENDENCY,  # type: ignore
+):
     try:
-        pass
+        request = await get_all_replies_from_comment_in_a_thread(
+            data_to_fetch_in_db=thread_id,
+            data_to_transact_with_in_db=comment_id,
+            db_access=session,
+        )
+
+        if request is not None:
+            return ResponseAPI(
+                data=request["replies"],
+                message=f"comment `{request["id"]}` replies on thread `{request["thread_id"]}`",
+                status_code=200,
+                success=True,
+            ).response()
+
+    except ValueError as error:
+        return ResponseAPI(
+            message=f"{error}",
+            status_code=404,
+            success=False,
+        ).response()
 
     except Exception as error:
         return ResponseAPI(

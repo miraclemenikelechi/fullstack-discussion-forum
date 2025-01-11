@@ -198,6 +198,40 @@ async def create_comment_in_a_thread(
 
 async def delete_comment_from_a_thread(
     data_to_fetch_in_db: str, data_to_transact_with_in_db: str, db_access: Session
+) -> dict[str, str]:
+    try:
+        is_thread: Thread = crud.exists(
+            arg="id", db=db_access, param=UUID(data_to_fetch_in_db), table=Thread
+        )
+
+        if not bool(is_thread):
+            raise ValueError(f"thread `{data_to_fetch_in_db}` does not exist.")
+
+        db_comment: Comment = next(
+            (
+                comment
+                for comment in is_thread.comments
+                if comment.id == UUID(data_to_transact_with_in_db)
+            ),
+            None,
+        )
+
+        if db_comment is None:
+            raise ValueError(
+                f"comment `{data_to_transact_with_in_db}` does not exist on thread `{data_to_fetch_in_db}`."
+            )
+
+        db_access.delete(db_comment)
+        db_access.commit()
+
+        return {"id": str(db_comment.id), "thread_id": str(is_thread.id)}
+
+    except Exception as error:
+        raise error
+
+
+async def get_all_replies_from_comment_in_a_thread(
+    data_to_fetch_in_db: str, data_to_transact_with_in_db: str, db_access: Session
 ):
     try:
         is_thread: Thread = crud.exists(
@@ -207,7 +241,7 @@ async def delete_comment_from_a_thread(
         if not bool(is_thread):
             raise ValueError(f"thread `{data_to_fetch_in_db}` does not exist.")
 
-        comment_to_delete: Comment = next(
+        db_comment: Comment = next(
             (
                 comment
                 for comment in is_thread.comments
@@ -216,15 +250,16 @@ async def delete_comment_from_a_thread(
             None,
         )
 
-        if comment_to_delete is None:
+        if db_comment is None:
             raise ValueError(
                 f"comment `{data_to_transact_with_in_db}` does not exist on thread `{data_to_fetch_in_db}`."
             )
 
-        db_access.delete(comment_to_delete)
-        db_access.commit()
-
-        return {"id": str(comment_to_delete.id), "thread_id": str(is_thread.id)}
+        return {
+            "id": str(db_comment.id),
+            "replies": [reply.to_dict() for reply in db_comment.replies],
+            "thread_id": str(is_thread.id),
+        }
 
     except Exception as error:
         raise error
