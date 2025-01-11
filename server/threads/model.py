@@ -45,15 +45,15 @@ class Comment(SQLModel, table=True):
 
     def to_dict(self):
         return {
-            "id": str(self.id),
             "author": self.author,
             "content": self.content,
             "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat(),
-            "thread_id": str(self.thread_id) if self.thread_id else None,
+            "id": str(self.id),
             "replies": [reply.to_dict() for reply in self.replies]
             if self.replies
             else [],
+            "thread_id": str(self.thread_id) if self.thread_id else None,
+            "updated_at": self.updated_at.isoformat(),
         }
 
 

@@ -9,10 +9,10 @@ from core.constants import STATUS_CODE
 
 
 class ResponseDataModel(BaseModel):
-    timestamp: datetime
-    status_code: int
-    message: str
     data: Any = None
+    message: str
+    status_code: int
+    timestamp: datetime
 
 
 class ResponseApiModel(BaseModel):

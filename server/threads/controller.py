@@ -5,8 +5,9 @@ from uuid import UUID
 from sqlmodel import Session
 
 from core import crud
+from utils.print import print_json
 
-from .model import Thread, Comment
+from .model import Comment, Thread
 
 
 async def all_threads_from_db(db_access: Session) -> list:
@@ -130,9 +131,7 @@ async def delete_a_thread(
         db_access.delete(response)
         db_access.commit()
 
-        return {
-            "id": str(response.id),
-        }
+        return {"id": str(response.id)}
 
     except Exception as error:
         raise error
@@ -154,7 +153,10 @@ async def get_all_comments_from_a_thread(
         if response is None:
             raise ValueError(f"thread `{data_to_fetch_in_db}` does not exist.")
 
-        return {"id": str(response.id), "comments": response.comments}
+        return {
+            "id": str(response.id),
+            "comments": [comment.to_dict() for comment in response.comments],
+        }
 
     except Exception as error:
         raise error
@@ -162,7 +164,7 @@ async def get_all_comments_from_a_thread(
 
 async def create_comment_in_a_thread(
     data_to_fetch_in_db: str, data_to_update_in_db: dict, db_access: Session
-):
+) -> dict[str, Any]:
     try:
         is_thread: Thread = crud.exists(
             arg="id", db=db_access, param=UUID(data_to_fetch_in_db), table=Thread
@@ -189,6 +191,40 @@ async def create_comment_in_a_thread(
             "created_at": str(created_comment.created_at),
             "replies": created_comment.replies,
         }
+
+    except Exception as error:
+        raise error
+
+
+async def delete_comment_from_a_thread(
+    data_to_fetch_in_db: str, data_to_transact_with_in_db: str, db_access: Session
+):
+    try:
+        is_thread: Thread = crud.exists(
+            arg="id", db=db_access, param=UUID(data_to_fetch_in_db), table=Thread
+        )
+
+        if not bool(is_thread):
+            raise ValueError(f"thread `{data_to_fetch_in_db}` does not exist.")
+
+        comment_to_delete: Comment = next(
+            (
+                comment
+                for comment in is_thread.comments
+                if comment.id == UUID(data_to_transact_with_in_db)
+            ),
+            None,
+        )
+
+        if comment_to_delete is None:
+            raise ValueError(
+                f"comment `{data_to_transact_with_in_db}` does not exist on thread `{data_to_fetch_in_db}`."
+            )
+
+        db_access.delete(comment_to_delete)
+        db_access.commit()
+
+        return {"id": str(comment_to_delete.id), "thread_id": str(is_thread.id)}
 
     except Exception as error:
         raise error
