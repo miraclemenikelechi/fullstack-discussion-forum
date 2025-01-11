@@ -94,8 +94,3 @@ class ThreadUpdate(SQLModel):
 class CommentCreate(SQLModel):
     author: str = Field()
     content: str = Field()
-
-
-class ReplyCreate:
-    author: str = Field()
-    content: str = Field()

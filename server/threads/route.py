@@ -4,6 +4,7 @@ from core.depedencies import DATABASE_SESSION_DEPENDENCY
 from threads.controller import (
     all_threads_from_db,
     create_a_new_thread,
+    create_a_reply_to_comment_in_a_thread,
     create_comment_in_a_thread,
     delete_a_thread,
     delete_comment_from_a_thread,
@@ -306,9 +307,34 @@ async def get_comment_replies(
 
 
 @router.post("/{thread_id}/comments/{comment_id}/replies")
-async def create_comment_reply():
+async def create_comment_reply(
+    thread_id: str,
+    comment_id: str,
+    reply_create: CommentCreate,
+    session: DATABASE_SESSION_DEPENDENCY,  # type: ignore
+):
     try:
-        pass
+        request = await create_a_reply_to_comment_in_a_thread(
+            data_to_update_in_db=reply_create,
+            data_to_fetch_in_db=thread_id,
+            data_to_transact_with_in_db=comment_id,
+            db_access=session,
+        )
+
+        if request is not None:
+            return ResponseAPI(
+                data=request,
+                message=f"reply `{request["id"]}` created in response to comment `{request["comment_id"]}`",
+                status_code=201,
+                success=True,
+            ).response()
+
+    except ValueError as error:
+        return ResponseAPI(
+            message=f"{error}",
+            status_code=404,
+            success=False,
+        ).response()
 
     except Exception as error:
         return ResponseAPI(

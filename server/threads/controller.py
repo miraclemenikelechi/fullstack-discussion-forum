@@ -7,7 +7,7 @@ from sqlmodel import Session
 from core import crud
 from utils.print import print_json
 
-from .model import Comment, Thread
+from .model import Comment, Reply, Thread
 
 
 async def all_threads_from_db(db_access: Session) -> list:
@@ -173,23 +173,21 @@ async def create_comment_in_a_thread(
         if not bool(is_thread):
             raise ValueError(f"thread `{data_to_fetch_in_db}` does not exist.")
 
-        comment_to_create: Comment = {
+        comment: Comment = {
             "author": data_to_update_in_db.author,
             "content": data_to_update_in_db.content,
             "thread_id": is_thread.id,
         }
 
-        created_comment: Comment = crud.create(
-            data=comment_to_create, db=db_access, table=Comment
-        )
+        db_comment: Comment = crud.create(data=comment, db=db_access, table=Comment)
 
         return {
-            "author": created_comment.author,
-            "content": created_comment.content,
-            "thread_id": str(created_comment.thread_id),
-            "id": str(created_comment.id),
-            "created_at": str(created_comment.created_at),
-            "replies": created_comment.replies,
+            "author": db_comment.author,
+            "content": db_comment.content,
+            "thread_id": str(db_comment.thread_id),
+            "id": str(db_comment.id),
+            "created_at": str(db_comment.created_at),
+            "replies": db_comment.replies,
         }
 
     except Exception as error:
@@ -259,6 +257,55 @@ async def get_all_replies_from_comment_in_a_thread(
             "id": str(db_comment.id),
             "replies": [reply.to_dict() for reply in db_comment.replies],
             "thread_id": str(is_thread.id),
+        }
+
+    except Exception as error:
+        raise error
+
+
+async def create_a_reply_to_comment_in_a_thread(
+    data_to_fetch_in_db: str,
+    data_to_transact_with_in_db: str,
+    data_to_update_in_db: dict,
+    db_access: Session,
+):
+    try:
+        is_thread: Thread = crud.exists(
+            arg="id", db=db_access, param=UUID(data_to_fetch_in_db), table=Thread
+        )
+
+        if not bool(is_thread):
+            raise ValueError(f"thread `{data_to_fetch_in_db}` does not exist.")
+
+        db_comment: Comment = next(
+            (
+                comment
+                for comment in is_thread.comments
+                if comment.id == UUID(data_to_transact_with_in_db)
+            ),
+            None,
+        )
+
+        if db_comment is None:
+            raise ValueError(
+                f"comment `{data_to_transact_with_in_db}` does not exist on thread `{data_to_fetch_in_db}`."
+            )
+
+        reply: Reply = {
+            "author": data_to_update_in_db.author,
+            "content": data_to_update_in_db.content,
+            "comment_id": db_comment.id,
+        }
+
+        db_reply: Reply = crud.create(data=reply, db=db_access, table=Reply)
+
+        return {
+            "author": db_reply.author,
+            "comment_id": str(db_reply.comment_id),
+            "content": db_reply.content,
+            "created_at": str(db_reply.created_at),
+            "id": str(db_reply.id),
+            "updated_at": str(db_reply.updated_at),
         }
 
     except Exception as error:
