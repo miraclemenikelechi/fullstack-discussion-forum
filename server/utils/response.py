@@ -130,3 +130,13 @@ class ResponseAPI:
 
         except Exception as error:
             raise error
+
+
+def raiseHttpError(status_code: int, message: str):
+    response = ResponseAPI(
+        message=message,
+        status_code=status_code,
+        success=False,
+    ).response()
+
+    raise HTTPException(detail=response, status_code=status_code)

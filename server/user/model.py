@@ -9,5 +9,11 @@ class UserRole(str, Enum):
     USER = "user"
 
 
-class UserCreate(SQLModel):
-    id: UUID = Field(default_factory=uuid4, unique=True, primary_key=True)
+class User(SQLModel, table=True):
+    id: UUID = Field(default_factory=uuid4, unique=True, primary_key=True, index=True)
+
+    username: str = Field(..., unique=True, index=True)
+    firstname: str = Field(...)
+    lastname: str = Field(...)
+    email: str = Field(...)
+    password: str = Field(...)

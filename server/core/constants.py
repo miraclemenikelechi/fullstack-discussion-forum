@@ -1,5 +1,11 @@
 import starlette.status as status
 
+# RegEX Patterns
+PATTERNS: dict[str, str] = {
+    "PASSWORD": r"((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W]).{8,64})"
+}
+
+
 # Status Codes
 STATUS_CODE: dict[int, int] = {
     100: status.HTTP_100_CONTINUE,
