@@ -10,4 +10,5 @@ dependencies = [
     "sqlmodel>=0.0.22",
     "strawberry-graphql[fastapi]>=0.256.1",
     "alembic>=1.14.1",
+    "passlib[bcrypt]>=1.7.4",
 ]

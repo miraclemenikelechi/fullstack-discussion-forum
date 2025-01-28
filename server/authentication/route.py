@@ -25,7 +25,7 @@ async def login(data: UserLogin, session: DATABASE_SESSION_DEPENDENCY):  # type:
         ).response()
 
 
-@router.post("/signup")
+@router.post(path="/signup", response_model=ResponseDataModel, status_code=201)
 async def signup(data: UserSignup, session: DATABASE_SESSION_DEPENDENCY):  # type: ignore
     try:
         request = await create_a_new_user(user_to_create_in_db=data, db_access=session)

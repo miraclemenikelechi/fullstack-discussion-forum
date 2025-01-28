@@ -22,8 +22,8 @@ def validate_password(password: str) -> str:
 
 
 class UserLogin(SQLModel):
-    username: str
-    password: str
+    username: str = Field(...)
+    password: str = Field(...)
 
 
 class UserSignup(SQLModel):
