@@ -8,7 +8,7 @@ from core.config import appConfig
 
 app = FastAPI()
 app.include_router(router=authentication_router, prefix=f"{appConfig.CURRENT_API_URL}")
-# app.include_router(router=threads_router, prefix=f"{appConfig.CURRENT_API_URL}")
+app.include_router(router=threads_router, prefix=f"{appConfig.CURRENT_API_URL}")
 
 
 @app.get("/")

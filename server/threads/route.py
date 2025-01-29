@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from core.depedencies import DATABASE_SESSION_DEPENDENCY
+from core.depedencies import DATABASE_SESSION_DEPENDENCY, CURRENT_USER_DEPENDENCY
 from threads.controller import (
     all_threads_from_db,
     create_a_new_thread,
@@ -43,7 +43,11 @@ async def get_all_threads(session: DATABASE_SESSION_DEPENDENCY):  # type: ignore
 
 
 @router.post(path="/", status_code=201, response_model=ResponseApiModel)
-async def create_thread(data: ThreadCreate, session: DATABASE_SESSION_DEPENDENCY):  # type: ignore
+async def create_thread(
+    data: ThreadCreate,
+    session: DATABASE_SESSION_DEPENDENCY,  # type: ignore
+    current_user: CURRENT_USER_DEPENDENCY,  # type: ignore
+):
     try:
         request = await create_a_new_thread(
             data_to_create_in_db=data, db_access=session
@@ -52,7 +56,7 @@ async def create_thread(data: ThreadCreate, session: DATABASE_SESSION_DEPENDENCY
         if request is not None:
             return ResponseAPI(
                 data=request,
-                message=f"thread `{request["id"]}` by user `{request["author"]}` has been created!",
+                message=f"thread `{request['id']}` by user `{request['author']}` has been created!",
                 status_code=201,
                 success=True,
             )
@@ -73,7 +77,7 @@ async def get_thread(thread_id: str, session: DATABASE_SESSION_DEPENDENCY):  # t
         if request is not None:
             return ResponseAPI(
                 data=request,
-                message=f"thread `{request["id"]}` by `{request["author"]}`",
+                message=f"thread `{request['id']}` by `{request['author']}`",
                 status_code=200,
                 success=True,
             )
@@ -109,7 +113,7 @@ async def edit_thread(
         if request is not None:
             return ResponseAPI(
                 data=request,
-                message=f"thread `{request["id"]}` has been updated.",
+                message=f"thread `{request['id']}` has been updated.",
                 status_code=202,
                 success=True,
             ).response()
@@ -123,7 +127,7 @@ async def edit_thread(
 
     except Exception as error:
         return ResponseAPI(
-            message=f"error updating thread `{request["id"]}` <<==>> {error}",
+            message=f"error updating thread `{request['id']}` <<==>> {error}",
             status_code=500,
             success=False,
         ).response()
@@ -138,7 +142,7 @@ async def delete_thread(thread_id: str, session: DATABASE_SESSION_DEPENDENCY):  
 
         if request is not None:
             return ResponseAPI(
-                message=f"thread `{request["id"]}` has been deleted.",
+                message=f"thread `{request['id']}` has been deleted.",
                 status_code=200,
                 success=True,
             ).response()
@@ -170,7 +174,7 @@ async def get_thread_comments(thread_id: str, session: DATABASE_SESSION_DEPENDEN
         if request is not None:
             return ResponseAPI(
                 data=request["comments"],
-                message=f"all comments from thread `{request["id"]}`.",
+                message=f"all comments from thread `{request['id']}`.",
                 status_code=200,
                 success=True,
             ).response()
@@ -208,7 +212,7 @@ async def create_thread_comment(
         if request is not None:
             return ResponseAPI(
                 data=request,
-                message=f"comment `{request["id"]}` created in response to thread `{request["thread_id"]}`",
+                message=f"comment `{request['id']}` created in response to thread `{request['thread_id']}`",
                 status_code=201,
                 success=True,
             ).response()
@@ -247,7 +251,7 @@ async def delete_thread_comment(
 
         if request is not None:
             return ResponseAPI(
-                message=f"comment `{request["id"]}` has been deleted from thread `{request["thread_id"]}`",
+                message=f"comment `{request['id']}` has been deleted from thread `{request['thread_id']}`",
                 status_code=200,
                 success=True,
             ).response()
@@ -287,7 +291,7 @@ async def get_comment_replies(
         if request is not None:
             return ResponseAPI(
                 data=request["replies"],
-                message=f"comment `{request["id"]}` replies on thread `{request["thread_id"]}`",
+                message=f"comment `{request['id']}` replies on thread `{request['thread_id']}`",
                 status_code=200,
                 success=True,
             ).response()
@@ -329,7 +333,7 @@ async def create_comment_reply(
         if request is not None:
             return ResponseAPI(
                 data=request,
-                message=f"reply `{request["id"]}` created in response to comment `{request["comment_id"]}`",
+                message=f"reply `{request['id']}` created in response to comment `{request['comment_id']}`",
                 status_code=201,
                 success=True,
             ).response()
@@ -365,7 +369,7 @@ async def delete_comment_reply(
 
         if request is not None:
             return ResponseAPI(
-                message=f"reply `{request["id"]}` to comment `{request["comment_id"]}` has been deleted from thread `{thread_id}`",
+                message=f"reply `{request['id']}` to comment `{request['comment_id']}` has been deleted from thread `{thread_id}`",
                 status_code=200,
                 success=True,
             ).response()

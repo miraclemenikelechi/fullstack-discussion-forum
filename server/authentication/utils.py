@@ -6,8 +6,9 @@ from sqlmodel import Session
 
 from core import crud
 from core.config import appConfig
+from utils.response import raiseHttpError
 
-from .model import User
+from .model import TokenPayload, User
 
 
 async def hash_password(password: str) -> str:
@@ -18,33 +19,40 @@ async def verify_password(password: str, hashed_password: str) -> bool:
     return appConfig.PASSWORD_CONTEXT.verify(password, hashed_password)
 
 
-async def create_access_token(data_to_encode) -> str | None:
+async def create_access_token(data_to_encode: str | Any) -> str | None:
+    expiry_time = datetime.now(timezone.utc) + timedelta(
+        minutes=appConfig.VALID_TOKEN_IN_MINUTES
+    )
+
+    to_encode = {
+        "exp": expiry_time,
+        "sub": str(data_to_encode),
+    }
+
     try:
         return jwt.encode(
+            to_encode,
+            appConfig.SECRET_KEY,
             algorithm=appConfig.ALGORITHM,
-            key=appConfig.SECRET_KEY,
-            payload={
-                "exp": datetime.now(timezone.utc)
-                + timedelta(minutes=appConfig.VALID_TOKEN_IN_MINUTES),
-                "sub": str(data_to_encode),
-            },
         )
 
     except Exception as error:
         print(f"error: {error}")
-        return None
+        raise error
 
 
-async def verify_access_token(access_token: str) -> Any | None:
+def verify_access_token(access_token: str) -> Any | None:
     try:
-        return jwt.decode(
+        payload = jwt.decode(
+            access_token,
+            appConfig.SECRET_KEY,
             algorithms=[appConfig.ALGORITHM],
-            key=appConfig.SECRET_KEY,
-            token=access_token,
         )
 
-    except Exception:
-        return None
+        return TokenPayload(**payload)
+
+    except Exception as error:
+        raiseHttpError(message=f"{error}", status_code=417)
 
 
 async def authenticate_by_identifier(identifier: str, session: Session) -> User | None:

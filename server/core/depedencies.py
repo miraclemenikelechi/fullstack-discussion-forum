@@ -1,4 +1,5 @@
 from typing import Annotated, Any, Generator
+from uuid import UUID
 
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
@@ -26,7 +27,8 @@ TOKEN_DEPENDENCY: str = Annotated[str, Depends(OAUTH2_SCHEME)]
 
 
 def get_current_user(session: DATABASE_SESSION_DEPENDENCY, token: TOKEN_DEPENDENCY):  # type: ignore
-    user = session.get(User, verify_access_token(access_token=token).get("sub"))
+    token_data = verify_access_token(access_token=token)
+    user = session.get(User, UUID(token_data.sub))
 
     if not user:
         raiseHttpError(message="Invalid token", status_code=401)
