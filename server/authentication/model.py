@@ -22,7 +22,7 @@ def validate_password(password: str) -> str:
 
 
 class UserLogin(SQLModel):
-    username: str = Field(...)
+    identifier: str = Field(...)
     password: str = Field(...)
 
 
@@ -65,3 +65,6 @@ class User(SQLModel, table=True):
     lastname: str = Field(...)
     email: str = Field(...)
     password: str = Field(...)
+
+    def to_dict(self):
+        return self.model_dump().pop("password", None)
