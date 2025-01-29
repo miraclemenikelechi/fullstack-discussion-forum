@@ -37,8 +37,7 @@ async def create_access_token(data_to_encode: str | Any) -> str | None:
         )
 
     except Exception as error:
-        print(f"error: {error}")
-        raise error
+        raiseHttpError(message=f"{error}", status_code=417)
 
 
 def verify_access_token(access_token: str) -> Any | None:
