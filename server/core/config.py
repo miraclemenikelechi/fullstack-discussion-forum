@@ -22,8 +22,6 @@ class Settings:
 
     SECRET_KEY: str = secrets.token_urlsafe(nbytes=32)
 
-    TOKEN_SECRET: str
-
     # 60 minutes * 24 hours * 8 days = 8 days
     VALID_TOKEN_IN_MINUTES: int = 60 * 24 * 8
 

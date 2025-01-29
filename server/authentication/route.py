@@ -2,14 +2,14 @@ from fastapi import APIRouter, HTTPException
 
 from authentication.controller import create_a_new_user, sign_in_a_user
 from core.depedencies import DATABASE_SESSION_DEPENDENCY
-from utils.response import ResponseAPI, ResponseApiModel, ResponseDataModel
+from utils.response import ResponseAPI, ResponseDataModel
 
 from .model import UserLogin, UserSignup
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
 
 
-@router.post("/login")
+@router.post(path="/login", response_model=ResponseDataModel, status_code=200)
 async def login(data: UserLogin, session: DATABASE_SESSION_DEPENDENCY):  # type: ignore
     try:
         request = await sign_in_a_user(user_to_sign_in=data, db_access=session)
