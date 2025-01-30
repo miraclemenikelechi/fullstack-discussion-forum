@@ -21,6 +21,10 @@ class ResponseApiModel(BaseModel):
     success: bool
 
 
+class ResponseErrorModel(BaseModel):
+    detail: ResponseDataModel
+
+
 class ResponseAPI:
     """
     A class to standardize API responses in a FastAPI application.

@@ -1,6 +1,6 @@
 from fastapi import APIRouter
-from ..user.models.user import User
-# from .services.auth_by_id import authenticate_by_identifier
-from .services import *
 
-router = APIRouter(prefix="/auth", tags=["authentication"])   
+from ..user.models.user import User  # noqa: F401
+from .services import *  # noqa: F403
+
+router = APIRouter(prefix="/auth", tags=["authentication"])
