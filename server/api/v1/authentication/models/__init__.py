@@ -1,4 +1,4 @@
-from .sign_in import UserSignInForm
-from .sign_up import UserSignupForm
+from .login import UserLoginForm
+from .signup import UserSignupForm
 
-__all__ = ["UserSignInForm", "UserSignupForm"]
+__all__ = ["UserLoginForm", "UserSignupForm"]

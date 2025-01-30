@@ -7,29 +7,29 @@ from utils.response import (
     ResponseErrorModel,
 )
 
-from ..controllers import sign_in_a_user
-from ..models import UserSignInForm
+from ..controllers import create_a_new_user
+from ..models import UserSignupForm
 
 router = APIRouter()
 
 
 @router.post(
-    path="/login",
-    status_code=200,
+    path="/signup",
+    status_code=201,
     responses={
-        200: {"model": ResponseDataModel},
-        404: {"model": ResponseErrorModel},
+        201: {"model": ResponseDataModel},
+        302: {"model": ResponseErrorModel},
     },
 )
-async def signin(data: UserSignInForm, session: DATABASE_SESSION_DEPENDENCY):  # type: ignore
+async def signup(data: UserSignupForm, session: DATABASE_SESSION_DEPENDENCY):  # type: ignore
     try:
-        request = await sign_in_a_user(user_to_sign_in=data, db_access=session)
+        request = await create_a_new_user(user_to_create_in_db=data, db_access=session)
 
         if request is not None:
             return ResponseAPI(
-                message="sign in success",
+                message="Profile created successfully.",
                 data=request,
-                status_code=200,
+                status_code=201,
                 success=True,
             ).response()
 

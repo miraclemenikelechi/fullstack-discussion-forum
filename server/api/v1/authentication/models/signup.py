@@ -16,15 +16,15 @@ class UserSignupForm(SQLModel):
             unique=True,
             index=True,
         ),
-        description="User email",
+        description="`USER` `email`",
     )
 
     firstname: str = Field(
-        ..., min_length=3, max_length=50, description="User first name"
+        ..., min_length=3, max_length=50, description="`USER` `firstname`"
     )
 
     lastname: str = Field(
-        ..., min_length=3, max_length=50, description="User last name"
+        ..., min_length=3, max_length=50, description="`USER` `lastname`"
     )
 
     password: Annotated[
@@ -33,7 +33,7 @@ class UserSignupForm(SQLModel):
             ...,
             min_length=8,
             max_length=100,
-            description="The user's password.",
+            description="`USER` `password`",
             schema_extra={"examples": ["MyStr0ngP@ssword!"]},
         ),
         AfterValidator(validate_password),
