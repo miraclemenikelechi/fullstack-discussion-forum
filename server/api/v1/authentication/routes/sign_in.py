@@ -1,4 +1,4 @@
-from fastapi.exceptions import HTTPException
+from fastapi import APIRouter, HTTPException
 
 from core.depedencies import DATABASE_SESSION_DEPENDENCY
 from utils.response import (
@@ -7,9 +7,10 @@ from utils.response import (
     ResponseErrorModel,
 )
 
-from .. import router
 from ..controllers import sign_in_a_user
 from ..models import UserSignInForm
+
+router = APIRouter()
 
 
 @router.post(
