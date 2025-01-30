@@ -1,7 +1,7 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 from core.depedencies import DATABASE_SESSION_DEPENDENCY, CURRENT_USER_DEPENDENCY
-from threads.controller import (
+from threads.controllers import (
     all_threads_from_db,
     create_a_new_thread,
     create_a_reply_to_comment_in_a_thread,
@@ -36,7 +36,7 @@ async def get_all_threads(session: DATABASE_SESSION_DEPENDENCY):  # type: ignore
 
     except Exception as error:
         return ResponseAPI(
-            message=f"error getting all threads <<==>> {error}",
+            message=f"An error occured: {error}",
             status_code=500,
             success=False,
         ).response()
@@ -50,20 +50,20 @@ async def create_thread(
 ):
     try:
         request = await create_a_new_thread(
-            data_to_create_in_db=data, db_access=session
+            data_to_create_in_db=data, db_access=session, thread_author=current_user
         )
 
         if request is not None:
             return ResponseAPI(
                 data=request,
-                message=f"thread `{request['id']}` by user `{request['author']}` has been created!",
+                message=f"thread `{request['id']}` by user `{request['author_username']}` has been created!",
                 status_code=201,
                 success=True,
             )
 
     except Exception as error:
         return ResponseAPI(
-            message=f"error creating your thread at this time <<==>> {error}",
+            message=f"An error occured: {error}",
             status_code=500,
             success=False,
         ).response()
@@ -82,16 +82,12 @@ async def get_thread(thread_id: str, session: DATABASE_SESSION_DEPENDENCY):  # t
                 success=True,
             )
 
-    except ValueError as error:
-        return ResponseAPI(
-            message=f"{error}",
-            status_code=404,
-            success=False,
-        ).response()
+    except HTTPException as error:
+        raise error
 
     except Exception as error:
         return ResponseAPI(
-            message=f"cannot get thread `{thread_id}` <<==>> {error}",
+            message=f"An error occured: {error}",
             status_code=500,
             success=False,
         ).response()
@@ -102,12 +98,14 @@ async def edit_thread(
     thread_id: str,
     thread_update: ThreadUpdate,
     session: DATABASE_SESSION_DEPENDENCY,  # type: ignore
+    current_user: CURRENT_USER_DEPENDENCY,  # type: ignore
 ):
     try:
         request = await update_a_thread(
             data_to_fetch_in_db=thread_id,
             data_to_update_in_db=thread_update,
             db_access=session,
+            current_user=current_user,
         )
 
         if request is not None:
@@ -118,26 +116,26 @@ async def edit_thread(
                 success=True,
             ).response()
 
-    except ValueError as error:
-        return ResponseAPI(
-            message=f"{error}",
-            status_code=404,
-            success=False,
-        ).response()
+    except HTTPException as error:
+        raise error
 
     except Exception as error:
         return ResponseAPI(
-            message=f"error updating thread `{request['id']}` <<==>> {error}",
+            message=f"An error occured: {error}",
             status_code=500,
             success=False,
         ).response()
 
 
 @router.delete(path="/{thread_id}", status_code=200, response_model=ResponseDataModel)
-async def delete_thread(thread_id: str, session: DATABASE_SESSION_DEPENDENCY):  # type: ignore
+async def delete_thread(
+    thread_id: str,
+    session: DATABASE_SESSION_DEPENDENCY,  # type: ignore
+    current_user: CURRENT_USER_DEPENDENCY,  # type: ignore
+):
     try:
         request = await delete_a_thread(
-            data_to_fetch_in_db=thread_id, db_access=session
+            data_to_fetch_in_db=thread_id, db_access=session, current_user=current_user
         )
 
         if request is not None:
@@ -179,16 +177,12 @@ async def get_thread_comments(thread_id: str, session: DATABASE_SESSION_DEPENDEN
                 success=True,
             ).response()
 
-    except ValueError as error:
-        return ResponseAPI(
-            message=f"{error}",
-            status_code=404,
-            success=False,
-        ).response()
+    except HTTPException as error:
+        raise error
 
     except Exception as error:
         return ResponseAPI(
-            message=f"{error}",
+            message=f"An error occured: {error}",
             status_code=500,
             success=False,
         ).response()
@@ -217,16 +211,12 @@ async def create_thread_comment(
                 success=True,
             ).response()
 
-    except ValueError as error:
-        return ResponseAPI(
-            message=f"{error}",
-            status_code=404,
-            success=False,
-        ).response()
+    except HTTPException as error:
+        raise error
 
     except Exception as error:
         return ResponseAPI(
-            message=f"{error}",
+            message=f"An error occured: {error}",
             status_code=500,
             success=False,
         ).response()
@@ -256,16 +246,12 @@ async def delete_thread_comment(
                 success=True,
             ).response()
 
-    except ValueError as error:
-        return ResponseAPI(
-            message=f"{error}",
-            status_code=404,
-            success=False,
-        ).response()
+    except HTTPException as error:
+        raise error
 
     except Exception as error:
         return ResponseAPI(
-            message=f"{error}",
+            message=f"An error occured: {error}",
             status_code=500,
             success=False,
         ).response()
@@ -296,16 +282,12 @@ async def get_comment_replies(
                 success=True,
             ).response()
 
-    except ValueError as error:
-        return ResponseAPI(
-            message=f"{error}",
-            status_code=404,
-            success=False,
-        ).response()
+    except HTTPException as error:
+        raise error
 
     except Exception as error:
         return ResponseAPI(
-            message=f"{error}",
+            message=f"An error occured: {error}",
             status_code=500,
             success=False,
         ).response()
@@ -338,16 +320,12 @@ async def create_comment_reply(
                 success=True,
             ).response()
 
-    except ValueError as error:
-        return ResponseAPI(
-            message=f"{error}",
-            status_code=404,
-            success=False,
-        ).response()
+    except HTTPException as error:
+        raise error
 
     except Exception as error:
         return ResponseAPI(
-            message=f"{error}",
+            message=f"An error occured: {error}",
             status_code=500,
             success=False,
         ).response()
@@ -374,16 +352,12 @@ async def delete_comment_reply(
                 success=True,
             ).response()
 
-    except ValueError as error:
-        return ResponseAPI(
-            message=f"{error}",
-            status_code=404,
-            success=False,
-        ).response()
+    except HTTPException as error:
+        raise error
 
     except Exception as error:
         return ResponseAPI(
-            message=f"{error}",
+            message=f"An error occured: {error}",
             status_code=500,
             success=False,
         ).response()

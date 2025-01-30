@@ -6,9 +6,10 @@ from sqlmodel import Session
 
 from core import crud
 from core.config import appConfig
+from api.v1.user.models import User
 from utils.response import raiseHttpError
 
-from .model import TokenPayload, User
+from .model import TokenPayload
 
 
 async def hash_password(password: str) -> str:

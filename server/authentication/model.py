@@ -57,17 +57,17 @@ class UserSignup(SQLModel):
     ]
 
 
-class User(SQLModel, table=True):
-    id: UUID = Field(default_factory=uuid4, unique=True, primary_key=True, index=True)
+# class User(SQLModel, table=True):
+#     id: UUID = Field(default_factory=uuid4, unique=True, primary_key=True, index=True)
 
-    username: str = Field(..., unique=True, index=True)
-    firstname: str = Field(...)
-    lastname: str = Field(...)
-    email: str = Field(...)
-    password: str = Field(...)
+#     username: str = Field(..., unique=True, index=True)
+#     firstname: str = Field(...)
+#     lastname: str = Field(...)
+#     email: str = Field(...)
+#     password: str = Field(...)
 
-    def to_dict(self):
-        return self.model_dump().pop("password", None)
+#     def to_dict(self):
+#         return self.model_dump().pop("password", None)
 
 
 class Token(SQLModel):

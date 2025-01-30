@@ -1,10 +1,10 @@
 from sqlmodel import Session
 
 from core import crud
+from user.model import User
 from utils.response import raiseHttpError
 
 
-from .model import User
 from .utils import (
     authenticate_by_identifier,
     create_access_token,

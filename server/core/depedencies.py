@@ -5,8 +5,8 @@ from fastapi import Depends
 from fastapi.security import APIKeyHeader
 from sqlmodel import Session
 
-from authentication.model import User
 from authentication.utils import verify_access_token
+from api.v1.user.models import User
 from utils.response import raiseHttpError
 
 from .database import db_engine

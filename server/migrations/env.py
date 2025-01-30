@@ -6,7 +6,7 @@ from sqlmodel import SQLModel
 from alembic import context
 from core.database import db_uri
 from threads.model import Comment, Reply, Thread  # noqa: F401
-from user.model import User  # noqa: F401
+from api.v1.user.models import User  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

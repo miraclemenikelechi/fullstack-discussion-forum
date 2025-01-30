@@ -81,7 +81,6 @@ class Reply(SQLModel, table=True):
 
 
 class ThreadCreate(SQLModel):
-    author: str = Field(..., min_length=3, max_length=50, description="Author name")
     content: str = Field(..., min_length=10, description="Thread content")
     title: str = Field(..., min_length=5, max_length=100, description="Thread title")
 

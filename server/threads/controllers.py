@@ -5,6 +5,8 @@ from uuid import UUID
 from sqlmodel import Session
 
 from core import crud
+from user.model import User
+from utils.response import raiseHttpError
 
 from .model import Comment, Reply, Thread
 
@@ -21,10 +23,10 @@ async def all_threads_from_db(db_access: Session) -> list:
 
 
 async def create_a_new_thread(
-    data_to_create_in_db: dict, db_access: Session
+    data_to_create_in_db: dict, db_access: Session, thread_author: User
 ) -> dict[str, Any]:
     db_data: Thread = {
-        "author": data_to_create_in_db.author,
+        "author": str(thread_author.id),
         "content": data_to_create_in_db.content,
         "title": data_to_create_in_db.title,
     }
@@ -33,7 +35,8 @@ async def create_a_new_thread(
         response: Thread = crud.create(data=db_data, db=db_access, table=Thread)
 
         return {
-            "author": response.author,
+            "author_id": response.author,
+            "author_username": thread_author.username,
             "comments": response.comments,
             "content": response.content,
             "id": str(response.id),
@@ -73,38 +76,45 @@ async def get_a_thread(data_to_fetch_in_db: str, db_access: Session) -> dict[str
 
 
 async def update_a_thread(
-    data_to_fetch_in_db: str, data_to_update_in_db: dict, db_access: Session
+    data_to_fetch_in_db: str,
+    data_to_update_in_db: dict,
+    db_access: Session,
+    current_user: User,
 ) -> dict[str, Any]:
     try:
-        response: Thread = crud.transact_by_param(
-            db=db_access,
-            arg="id",
-            table=Thread,
-            op="==",
-            param=UUID(data_to_fetch_in_db),
-            single=True,
+        db_thread: Thread = crud.exists(
+            arg="id", db=db_access, param=UUID(data_to_fetch_in_db), table=Thread
         )
 
-        if response is None:
-            raise ValueError(f"thread `{data_to_fetch_in_db}` does not exist.")
+        if not bool(db_thread):
+            raise raiseHttpError(
+                message=f"thread `{data_to_fetch_in_db}` does not exist.",
+                status_code=404,
+            )
+
+        if current_user.id is not db_thread.author:
+            raiseHttpError(
+                message="you do not have permission to edit this thread",
+                status_code=403,
+            )
 
         for (
             key,
             value,
         ) in data_to_update_in_db.model_dump().items():
             setattr(
-                response, key, value
-            )  # response: Thread from db, key: what keys to update, value: values to be changed
+                db_thread, key, value
+            )  # db_thread: Thread from db, key: what keys to update, value: values to be changed
 
-        response.updated_at = datetime.now()
+        db_thread.updated_at = datetime.now()
 
         db_access.commit()
-        db_access.refresh(response)
+        db_access.refresh(db_thread)
 
         return {
-            "content": response.content,
-            "id": str(response.id),
-            "title": response.title,
+            "content": db_thread.content,
+            "id": str(db_thread.id),
+            "title": db_thread.title,
         }
 
     except Exception as error:
@@ -112,25 +122,29 @@ async def update_a_thread(
 
 
 async def delete_a_thread(
-    data_to_fetch_in_db: str, db_access: Session
+    data_to_fetch_in_db: str, db_access: Session, current_user: User
 ) -> dict[str, str]:
     try:
-        response: Thread = crud.transact_by_param(
-            db=db_access,
-            arg="id",
-            table=Thread,
-            op="==",
-            param=UUID(data_to_fetch_in_db),
-            single=True,
+        db_thread: Thread = crud.exists(
+            arg="id", db=db_access, param=UUID(data_to_fetch_in_db), table=Thread
         )
 
-        if response is None:
-            raise ValueError(f"thread `{data_to_fetch_in_db}` does not exist.")
+        if not bool(db_thread):
+            raise raiseHttpError(
+                message=f"thread `{data_to_fetch_in_db}` does not exist.",
+                status_code=404,
+            )
 
-        db_access.delete(response)
+        if current_user.id is not db_thread.author:
+            raiseHttpError(
+                message="you do not have permission to delete this thread",
+                status_code=403,
+            )
+
+        db_access.delete(db_thread)
         db_access.commit()
 
-        return {"id": str(response.id)}
+        return {"id": str(db_thread.id)}
 
     except Exception as error:
         raise error
