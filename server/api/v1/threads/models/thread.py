@@ -1,30 +1,33 @@
 from datetime import datetime
+from typing import TYPE_CHECKING, Optional
 from uuid import UUID, uuid4
 
 from sqlmodel import Field, Relationship, SQLModel
 
-from typing import TYPE_CHECKING
-
-
 if TYPE_CHECKING:
-    from .comment import Comment    
+    from api.v1.user.models.user import User
+
+    from .comment import Comment
 
 
 class Thread(SQLModel, table=True):
     id: UUID = Field(default_factory=uuid4, unique=True, primary_key=True, index=True)
-    created_at: datetime = Field(default_factory=datetime.now)
-    updated_at: datetime = Field(default_factory=datetime.now)
 
-    author_id: str = Field()  # TODO: the author of the thread should be a user model
+    author_id: Optional[UUID] = Field(foreign_key="user.id")
+    author: Optional["User"] = Relationship(back_populates="threads")
+
+    comments: list["Comment"] = Relationship(back_populates="thread")
+
     content: str = Field()
     title: str = Field()
 
-    comments: list["Comment"] = Relationship(back_populates="thread")
+    created_at: datetime = Field(default_factory=datetime.now)
+    updated_at: datetime = Field(default_factory=datetime.now)
 
     def to_dict(self):
         return {
             "id": str(self.id),
-            "author": self.author,
+            "author": self.author.username,
             "comments": [comment.to_dict() for comment in self.comments]
             if self.comments
             else [],

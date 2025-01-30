@@ -4,9 +4,11 @@ from sqlalchemy import engine_from_config, pool
 from sqlmodel import SQLModel
 
 from alembic import context
+from api.v1.threads.models.comment import Comment  # noqa: F401
+from api.v1.threads.models.reply import Reply  # noqa: F401
+from api.v1.threads.models.thread import Thread  # noqa: F401
+from api.v1.user.models.user import User  # noqa: F401
 from core.database import db_uri
-from threads.model import Comment, Reply, Thread  # noqa: F401
-from api.v1.user.models import User  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

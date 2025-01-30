@@ -8,8 +8,6 @@ from api.v1.threads.models.comment import Comment
 from api.v1.threads.models.reply import Reply
 from api.v1.threads.models.thread import Thread
 
-# from api.v1.threads.models import Comment, Reply, Thread
-
 
 class UserRole(str, Enum):
     ADMIN = "admin"
@@ -29,9 +27,9 @@ class User(SQLModel, table=True):
     role: UserRole = Field(default=UserRole.USER)
     username: str = Field(..., unique=True, index=True)
 
-    threads: list["Thread"] = Relationship(back_populates="author")
     comments: list["Comment"] = Relationship(back_populates="author")
     replies: list["Reply"] = Relationship(back_populates="author")
+    threads: list["Thread"] = Relationship(back_populates="author")
 
     def to_dict(self):
         return self.model_dump(exclude={"password", "registered_at", "role"})
