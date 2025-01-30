@@ -1,8 +1,7 @@
 from sqlmodel import Session
 
+from api.v1.user.models.user import User
 from core import crud
-
-from .. import User
 
 
 async def authenticate_by_identifier(identifier: str, session: Session) -> User | None:

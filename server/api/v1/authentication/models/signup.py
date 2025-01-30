@@ -38,3 +38,7 @@ class UserSignupForm(SQLModel):
         ),
         AfterValidator(validate_password),
     ]
+
+
+class TokenPayload(SQLModel):
+    sub: str | None = None

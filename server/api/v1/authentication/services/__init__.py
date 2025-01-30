@@ -2,6 +2,7 @@ from .auth_by_id import authenticate_by_identifier
 from .create_access_token import create_access_token
 from .hash_password import hash_password
 from .validate_password import validate_password
+from .verify_access_token import verify_access_token
 from .verify_password import verify_password
 
 __all__ = [
@@ -9,5 +10,6 @@ __all__ = [
     "create_access_token",
     "hash_password",
     "validate_password",
+    "verify_access_token",
     "verify_password",
 ]

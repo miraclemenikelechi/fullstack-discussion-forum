@@ -7,8 +7,8 @@ from utils.response import (
     ResponseErrorModel,
 )
 
-from ..controllers import sign_in_a_user
-from ..models import UserLoginForm
+from ..controllers.login import sign_in_a_user
+from ..models.login import UserLoginForm
 
 router = APIRouter()
 
@@ -20,6 +20,7 @@ router = APIRouter()
         200: {"model": ResponseDataModel},
         401: {"model": ResponseErrorModel},
         404: {"model": ResponseErrorModel},
+        500: {"model": ResponseErrorModel},
     },
 )
 async def login(data: UserLoginForm, session: DATABASE_SESSION_DEPENDENCY):  # type: ignore

@@ -11,3 +11,8 @@ class UserLoginForm(SQLModel):
     password: str = Field(
         ..., min_length=8, regex=PATTERNS["PASSWORD"], description="`USER` `password`"
     )
+
+
+class Token(SQLModel):
+    access_token: str
+    token_type: str = "bearer"

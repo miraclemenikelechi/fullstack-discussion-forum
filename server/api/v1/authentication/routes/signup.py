@@ -7,8 +7,8 @@ from utils.response import (
     ResponseErrorModel,
 )
 
-from ..controllers import create_a_new_user
-from ..models import UserSignupForm
+from ..controllers.signup import create_a_new_user
+from ..models.signup import UserSignupForm
 
 router = APIRouter()
 
@@ -19,6 +19,7 @@ router = APIRouter()
     responses={
         201: {"model": ResponseDataModel},
         302: {"model": ResponseErrorModel},
+        500: {"model": ResponseErrorModel},
     },
 )
 async def signup(data: UserSignupForm, session: DATABASE_SESSION_DEPENDENCY):  # type: ignore

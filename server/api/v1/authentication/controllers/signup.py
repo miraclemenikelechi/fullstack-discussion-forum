@@ -1,11 +1,11 @@
 from sqlmodel import Session
 
+from api.v1.user.models.user import User
 from core import crud
 from utils.response import raiseHttpError
 
-from .. import User
-from ..models import UserSignupForm
-from ..services import hash_password
+from ..models.signup import UserSignupForm
+from ..services.hash_password import hash_password
 
 
 async def create_a_new_user(

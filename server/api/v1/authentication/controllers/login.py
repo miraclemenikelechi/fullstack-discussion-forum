@@ -1,9 +1,9 @@
 from sqlmodel import Session
 
+from api.v1.user.models.user import User
 from utils.response import raiseHttpError
 
-from .. import User
-from ..models import UserLoginForm
+from ..models.login import UserLoginForm
 from ..services import authenticate_by_identifier, create_access_token, verify_password
 
 

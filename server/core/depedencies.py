@@ -5,11 +5,11 @@ from fastapi import Depends
 from fastapi.security import APIKeyHeader
 from sqlmodel import Session
 
-from authentication.utils import verify_access_token
-from api.v1.user.models import User
+# from api.v1.user.models.user import User
 from utils.response import raiseHttpError
 
 from .database import db_engine
+from .security import verify_access_token
 
 
 def db_session() -> Generator[Session, Any, None]:
@@ -40,6 +40,8 @@ def get_current_user(
     session: DATABASE_SESSION_DEPENDENCY,  # type: ignore
     token: TOKEN_KEY_DEPENDENCY,  # type: ignore
 ):
+    from api.v1.user.models.user import User
+
     token_data = verify_access_token(access_token=token)
     user = session.get(User, UUID(token_data.sub))
 
@@ -49,4 +51,4 @@ def get_current_user(
     return user
 
 
-CURRENT_USER_DEPENDENCY: User = Annotated[User, Depends(get_current_user)]
+# CURRENT_USER_DEPENDENCY: User = Annotated[User, Depends(get_current_user)]

@@ -69,6 +69,12 @@ class Reply(SQLModel, table=True):
     comment_id: UUID | None = Field(foreign_key="comment.id")
     comment: Comment | None = Relationship(back_populates="replies")
 
+    parent_reply_id: UUID | None = Field(default=None, foreign_key="reply.id")
+    parent_reply: "Reply" | None = Relationship(
+        sa_relationship_kwargs={"remote_side": "Reply.id"}, back_populates="replies"
+    )
+    replies: list["Reply"] = Relationship(back_populates="parent_reply")
+
     def to_dict(self):
         return {
             "author": self.author,
