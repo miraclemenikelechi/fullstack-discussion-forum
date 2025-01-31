@@ -8,7 +8,9 @@ from ..models.thread import Thread
 async def get_all(db_access: Session) -> list:
     try:
         return [
-            data.serialize(include={"author": True})
+            data.serialize(
+                include={"author": True}, exclude={"author": {"password", "email"}}
+            )
             for data in crud.transact_by_param(db=db_access, table=Thread)
         ]
 
