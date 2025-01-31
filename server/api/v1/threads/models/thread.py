@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional
 from uuid import UUID, uuid4
 
 from sqlmodel import Field, Relationship, SQLModel
@@ -24,18 +24,17 @@ class Thread(SQLModel, table=True):
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
 
-    def to_dict(self):
-        return {
-            "id": str(self.id),
-            "author": self.author.username,
-            "comments": [comment.to_dict() for comment in self.comments]
-            if self.comments
-            else [],
-            "content": self.content,
-            "created_at": self.created_at.isoformat(),
-            "title": self.title,
-            "updated_at": self.updated_at.isoformat(),
-        }
+    def serialize(self) -> dict[str, Any]:
+        model: dict[str, Any] = self.model_dump(
+            exclude={"created_at", "updated_at"}, mode="json"
+        )
+
+        model["author"] = self.author.username
+        model["comments"] = (
+            [comment.to_dict() for comment in self.comments] if self.comments else []
+        )
+
+        return model
 
 
 class ThreadCreate(SQLModel):
