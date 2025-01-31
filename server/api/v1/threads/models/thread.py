@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Any, Optional
 from uuid import UUID, uuid4
 
 from sqlmodel import Field, Relationship, SQLModel
+from utils.model import serialize_model
 
 if TYPE_CHECKING:
     from api.v1.user.models.user import User
@@ -24,17 +25,24 @@ class Thread(SQLModel, table=True):
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
 
-    def serialize(self) -> dict[str, Any]:
-        model: dict[str, Any] = self.model_dump(
-            exclude={"created_at", "updated_at"}, mode="json"
-        )
+    # def serialize(self) -> dict[str, Any]:
+    #     model: dict[str, Any] = self.model_dump(
+    #         exclude={"created_at", "updated_at"}, mode="json"
+    #     )
 
-        model["author"] = self.author.username
-        model["comments"] = (
-            [comment.to_dict() for comment in self.comments] if self.comments else []
-        )
+    #     model["author"] = (
+    #         self.author.serialize(include={"threads": False}) if self.author else None
+    #     )
+    #     model["comments"] = (
+    #         [comment.to_dict() for comment in self.comments] if self.comments else []
+    #     )
 
-        return model
+    #     return model
+
+    def serialize(self, depth=1, exclude=None, include=None):
+        return serialize_model(
+            depth=depth, exclude=exclude, include=include, table_instance=self
+        )
 
 
 class ThreadCreate(SQLModel):
