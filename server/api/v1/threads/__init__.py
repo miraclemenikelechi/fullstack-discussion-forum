@@ -1,8 +1,10 @@
 from fastapi import APIRouter
 
-from .routes.thread_get_all import router as thread
+from .routes.thread_create import router as create_thread
+from .routes.thread_get_all import router as get_all_thread
 
+router = APIRouter(prefix="/threads", tags=["threads"])
 
-router = APIRouter(prefix="/threads", tags=["thread"])
-
-router.include_router(thread)
+# register routes under `/threads`
+router.include_router(get_all_thread)
+router.include_router(create_thread)

@@ -1,15 +1,16 @@
-from typing import Annotated, Any, Generator
+from typing import TYPE_CHECKING, Annotated, Any, Generator
 from uuid import UUID
 
 from fastapi import Depends
 from fastapi.security import APIKeyHeader
 from sqlmodel import Session
 
-# from api.v1.user.models.user import User
 from utils.response import raiseHttpError
 
 from .database import db_engine
-from .security import verify_access_token
+
+if TYPE_CHECKING:
+    from api.v1.user.models.user import User
 
 
 def db_session() -> Generator[Session, Any, None]:
@@ -25,8 +26,6 @@ TOKEN_DEPENDENCY: str = Annotated[str, Depends(API_KEY_SCHEME)]
 
 
 def get_token(token: TOKEN_DEPENDENCY):  # type: ignore
-    print(f"API Key: {token}")
-
     if not token.startswith("Bearer "):
         raiseHttpError(message="invalid token format", status_code=403)
 
@@ -40,6 +39,7 @@ def get_current_user(
     session: DATABASE_SESSION_DEPENDENCY,  # type: ignore
     token: TOKEN_KEY_DEPENDENCY,  # type: ignore
 ):
+    from api.v1.authentication.services.verify_access_token import verify_access_token
     from api.v1.user.models.user import User
 
     token_data = verify_access_token(access_token=token)
@@ -51,4 +51,4 @@ def get_current_user(
     return user
 
 
-# CURRENT_USER_DEPENDENCY: User = Annotated[User, Depends(get_current_user)]
+CURRENT_USER_DEPENDENCY: "User" = Annotated["User", Depends(get_current_user)]

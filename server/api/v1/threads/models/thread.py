@@ -36,3 +36,11 @@ class Thread(SQLModel, table=True):
             "title": self.title,
             "updated_at": self.updated_at.isoformat(),
         }
+
+
+class ThreadCreate(SQLModel):
+    content: str = Field(..., min_length=10, description="`THREAD` `content`")
+
+    title: str = Field(
+        ..., min_length=5, max_length=100, description="`THREAD` `title`"
+    )
