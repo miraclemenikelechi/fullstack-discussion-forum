@@ -9,9 +9,9 @@ async def get_all(db_access: Session) -> list:
     try:
         return [
             data.serialize(
-                include={"author": {"threads": True}},
+                depth=2,
                 exclude={"author": {"password", "email", "firstname", "lastname"}},
-                depth=2
+                include={"author": {"threads": True}},
             )
             for data in crud.transact_by_param(db=db_access, table=Thread)
         ]

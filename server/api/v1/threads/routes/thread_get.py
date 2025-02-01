@@ -1,35 +1,40 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 
 from core.depedencies import db_session
 from utils.response import ResponseAPI, ResponseDataModel, ResponseErrorModel
-
-from ..controllers.thread_get_all import get_all
+from ..controllers.thread_get import get_thread
 
 router = APIRouter(tags=["thread"])
 
 
 @router.get(
-    path="/",
-    status_code=200,
+    path="/{thread_id}",
+    status_code=302,
     responses={
-        200: {"model": ResponseDataModel},
+        302: {"model": ResponseDataModel},
+        404: {"model": ResponseErrorModel},
         500: {"model": ResponseErrorModel},
     },
 )
-async def get_all_threads(session: Annotated[Session, Depends(db_session)]):
+async def get_a_thread(
+    thread_id: str, session: Annotated[Session, Depends(db_session)]
+):
     try:
-        request = await get_all(db_access=session)
+        request = await get_thread(data_to_fetch_in_db=thread_id, db_access=session)
 
         if request is not None:
             return ResponseAPI(
                 data=request,
-                message="all threads",
-                status_code=200,
+                message=f"thread `{request['id']}` by `{request['author']['username']}`",
+                status_code=302,
                 success=True,
-            ).response()
+            )
+
+    except HTTPException as error:
+        raise error
 
     except Exception as error:
         return ResponseAPI(
@@ -37,4 +42,3 @@ async def get_all_threads(session: Annotated[Session, Depends(db_session)]):
             status_code=500,
             success=False,
         ).response()
-    pass

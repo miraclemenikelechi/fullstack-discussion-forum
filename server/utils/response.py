@@ -137,6 +137,21 @@ class ResponseAPI:
 
 
 def raiseHttpError(status_code: int, message: str):
+    """
+    Raises an HTTPException with a standardized error response.
+
+    This function utilizes the ResponseAPI class to create a consistent
+    error response structure, which includes a message and status code.
+    It then raises an HTTPException with this standardized response.
+
+    Args:
+        status_code (int): The HTTP status code for the error.
+        message (str): A descriptive message for the error.
+
+    Raises:
+        HTTPException: Containing the formatted error response.
+    """
+
     response = ResponseAPI(
         message=message,
         status_code=status_code,
