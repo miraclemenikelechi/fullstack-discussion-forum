@@ -1,6 +1,9 @@
-from fastapi import APIRouter, HTTPException
+from typing import Annotated
 
-from core.depedencies import DATABASE_SESSION_DEPENDENCY
+from fastapi import APIRouter, Depends, HTTPException
+from sqlmodel import Session
+
+from core.depedencies import db_session
 from utils.response import (
     ResponseAPI,
     ResponseDataModel,
@@ -23,7 +26,7 @@ router = APIRouter()
         500: {"model": ResponseErrorModel},
     },
 )
-async def login(data: UserLoginForm, session: DATABASE_SESSION_DEPENDENCY):  # type: ignore
+async def login(data: UserLoginForm, session: Annotated[Session, Depends(db_session)]):
     try:
         request = await sign_in_a_user(user_to_sign_in=data, db_access=session)
 

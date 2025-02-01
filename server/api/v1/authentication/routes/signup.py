@@ -1,6 +1,9 @@
-from fastapi import APIRouter, HTTPException
+from typing import Annotated
 
-from core.depedencies import DATABASE_SESSION_DEPENDENCY
+from fastapi import APIRouter, Depends, HTTPException
+from sqlmodel import Session
+
+from core.depedencies import db_session
 from utils.response import (
     ResponseAPI,
     ResponseDataModel,
@@ -22,7 +25,9 @@ router = APIRouter()
         500: {"model": ResponseErrorModel},
     },
 )
-async def signup(data: UserSignupForm, session: DATABASE_SESSION_DEPENDENCY):  # type: ignore
+async def signup(
+    data: UserSignupForm, session: Annotated[Session, Depends(db_session)]
+):
     try:
         request = await create_a_new_user(user_to_create_in_db=data, db_access=session)
 

@@ -1,10 +1,17 @@
-from fastapi import APIRouter
+from typing import Annotated, TYPE_CHECKING
 
-from core.depedencies import CURRENT_USER_DEPENDENCY, DATABASE_SESSION_DEPENDENCY
+from fastapi import APIRouter, Depends
+from sqlmodel import Session
+
+from core.depedencies import db_session, get_current_user
 from utils.response import ResponseAPI, ResponseDataModel, ResponseErrorModel
 
 from ..controllers.thread_create import create
 from ..models.thread import ThreadCreate
+
+if TYPE_CHECKING:
+    from api.v1.user.models.user import User
+
 
 router = APIRouter(tags=["thread"])
 
@@ -20,13 +27,14 @@ router = APIRouter(tags=["thread"])
 )
 async def create_a_new_thread(
     data: ThreadCreate,
-    session: DATABASE_SESSION_DEPENDENCY,  # type: ignore
-    current_user: CURRENT_USER_DEPENDENCY,  # type: ignore
+    session: Annotated[Session, Depends(db_session)],
+    current_user: Annotated["User", Depends(get_current_user)],
 ):
     try:
         request = await create(
             author=current_user, data_to_create_in_db=data, db_access=session
         )
+
         if request is not None:
             return ResponseAPI(
                 data=request,

@@ -1,6 +1,9 @@
-from fastapi import APIRouter
+from typing import Annotated
 
-from core.depedencies import DATABASE_SESSION_DEPENDENCY
+from fastapi import APIRouter, Depends
+from sqlmodel import Session
+
+from core.depedencies import db_session
 from utils.response import ResponseAPI, ResponseDataModel, ResponseErrorModel
 
 from ..controllers.thread_get_all import get_all
@@ -16,7 +19,7 @@ router = APIRouter()
         500: {"model": ResponseErrorModel},
     },
 )
-async def get_all_threads(session: DATABASE_SESSION_DEPENDENCY):  # type: ignore
+async def get_all_threads(session: Annotated[Session, Depends(db_session)]):
     try:
         request = await get_all(db_access=session)
 

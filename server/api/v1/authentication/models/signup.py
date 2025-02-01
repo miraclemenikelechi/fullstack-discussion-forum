@@ -3,7 +3,7 @@ from typing import Annotated
 from pydantic import AfterValidator, EmailStr
 from sqlmodel import VARCHAR, Column, Field, SQLModel
 
-from ..services import validate_password
+from ..services.validate_password import validate_password
 
 
 class UserSignupForm(SQLModel):
