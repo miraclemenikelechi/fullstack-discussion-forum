@@ -41,7 +41,7 @@ async def create_a_new_thread(
                 message=f"thread `{request['id']}` by user `{request['author_username']}` has been created!",
                 status_code=201,
                 success=True,
-            )
+            ).response()
 
     except Exception as error:
         return ResponseAPI(

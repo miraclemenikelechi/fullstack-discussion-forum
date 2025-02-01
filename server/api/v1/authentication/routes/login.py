@@ -18,9 +18,9 @@ router = APIRouter()
 
 @router.post(
     path="/login",
-    status_code=200,
+    status_code=202,
     responses={
-        200: {"model": ResponseDataModel},
+        202: {"model": ResponseDataModel},
         401: {"model": ResponseErrorModel},
         404: {"model": ResponseErrorModel},
         500: {"model": ResponseErrorModel},
@@ -34,7 +34,7 @@ async def login(data: UserLoginForm, session: Annotated[Session, Depends(db_sess
             return ResponseAPI(
                 message="log in success",
                 data=request,
-                status_code=200,
+                status_code=202,
                 success=True,
             ).response()
 
