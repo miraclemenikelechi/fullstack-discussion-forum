@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from sqlmodel import Session
 
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 async def create(
     data_to_create_in_db: ThreadCreate, db_access: Session, author: "User"
-):
+) -> dict[str, Any]:
     _thread = Thread(
         author_id=author.id,
         content=data_to_create_in_db.content,

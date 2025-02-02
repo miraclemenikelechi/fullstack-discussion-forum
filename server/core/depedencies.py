@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Annotated, Any, Generator, Union
 from uuid import UUID
 
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from fastapi.security import APIKeyHeader
 from sqlmodel import Session
 
@@ -36,10 +36,15 @@ def get_token(
     Returns:
         str: the token without the "Bearer " prefix
     """
-    if not token.startswith("Bearer "):
-        raiseHttpError(message="invalid token format", status_code=403)
 
-    return token[7:]
+    try:
+        if not token.startswith("Bearer "):
+            raiseHttpError(message="invalid token format", status_code=403)
+
+        return token[7:]
+
+    except HTTPException as error:
+        raise error
 
 
 def get_current_user(
@@ -69,7 +74,11 @@ def get_current_user(
     token_data = verify_access_token(access_token=token)
     user: User | None = session.get(User, UUID(token_data.sub))
 
-    if not user:
-        raiseHttpError(message="Invalid token", status_code=401)
+    try:
+        if not user:
+            raiseHttpError(message="Invalid token", status_code=401)
 
-    return user
+        return user
+
+    except HTTPException as error:
+        raise error

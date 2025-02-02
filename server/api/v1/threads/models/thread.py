@@ -37,3 +37,11 @@ class ThreadCreate(SQLModel):
     title: str = Field(
         ..., min_length=5, max_length=100, description="`THREAD` `title`"
     )
+
+
+class ThreadUpdateForm(SQLModel):
+    content: str = Field(..., min_length=10, description="`THREAD` `content`")
+
+    title: str = Field(
+        ..., min_length=5, max_length=100, description="`THREAD` `title`"
+    )

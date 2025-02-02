@@ -18,7 +18,6 @@ def serialize_model(
     if include is None:
         include = dict()
 
-    _exclude_as_set = set(exclude) if isinstance(exclude, set) else set()
     _exclude_as_dict = dict() if isinstance(exclude, dict) else exclude
 
     _model: dict[str, Any] = table_instance.model_dump(
@@ -62,4 +61,4 @@ def serialize_model(
                     depth=depth - 1,
                 )
 
-    return _model
+    return dict(sorted(_model.items()))

@@ -9,20 +9,20 @@ from utils.response import raiseHttpError
 from ..models.thread import Thread
 
 
-async def get_thread(data_to_fetch_in_db: str, db_access: Session) -> dict[str, Any]:
+async def get_thread(thread_id: str, db_access: Session) -> dict[str, Any]:
     try:
         _thread: Thread = crud.transact_by_param(
             db=db_access,
             arg="id",
             table=Thread,
             op="==",
-            param=UUID(data_to_fetch_in_db),
+            param=UUID(thread_id),
             single=True,
         )
 
         if not bool(_thread):
             raiseHttpError(
-                message=f"thread `{data_to_fetch_in_db}` does not exist.",
+                message=f"thread `{thread_id}` does not exist.",
                 status_code=404,
             )
 
