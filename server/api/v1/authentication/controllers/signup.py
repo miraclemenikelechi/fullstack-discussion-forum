@@ -27,13 +27,13 @@ async def create_a_new_user(
         if bool(_email_exists):
             raiseHttpError(
                 message=f"user `{user_to_create_in_db.email}` already exists. sign in instead.",
-                status_code=302,
+                status_code=409,
             )
 
         if bool(_username_exists):
             raiseHttpError(
                 message=f"user `{_username}` already exists. sign in instead.",
-                status_code=302,
+                status_code=409,
             )
 
         _user: User = {
@@ -50,6 +50,8 @@ async def create_a_new_user(
             "email": _db_user.email,
             "username": _db_user.username,
         }
+
+        # return _db_user.serialize() // TODO: return serialized user
 
     except Exception as error:
         raise error

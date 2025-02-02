@@ -21,7 +21,7 @@ router = APIRouter()
     status_code=201,
     responses={
         201: {"model": ResponseDataModel},
-        302: {"model": ResponseErrorModel},
+        409: {"model": ResponseErrorModel},
         500: {"model": ResponseErrorModel},
     },
 )

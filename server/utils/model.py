@@ -9,6 +9,23 @@ def serialize_model(
     include: dict[str, bool | dict] = None,
     depth: int = 1,
 ):
+    """
+    Serialize a SQLModel instance into a dictionary, allowing for nested relationships and field exclusion.
+
+    Args:
+        table_instance: The SQLModel instance to serialize.
+        exclude: A set of field names to exclude from the serialized output, or a dictionary of field
+            names to boolean values indicating whether to exclude the field. If a dictionary is provided,
+            the boolean value can also be a dictionary of nested field names to exclude.
+        include: A dictionary of field names to boolean values indicating whether to include the field
+            in the serialized output. If a boolean value is `True`, the field will be included, and if
+            it is a dictionary, the dictionary will be used to recursively serialize the field.
+        depth: The maximum depth of nested relationships to serialize. Defaults to 1.
+
+    Returns:
+        A dictionary containing the serialized data.
+    """
+
     if table_instance is None or depth < 0:
         return None
 
