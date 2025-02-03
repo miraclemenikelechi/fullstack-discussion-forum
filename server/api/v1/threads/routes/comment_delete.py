@@ -20,6 +20,7 @@ router = APIRouter(tags=["comment"])
     status_code=200,
     responses={
         200: {"model": ResponseDataModel},
+        403: {"model": ResponseErrorModel},
         404: {"model": ResponseErrorModel},
         500: {"model": ResponseErrorModel},
     },

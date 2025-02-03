@@ -37,6 +37,12 @@ async def delete_thread_comment(
                 status_code=404,
             )
 
+        if current_user.id is not _db_comment.author_id:
+            raiseHttpError(
+                message="you do not have permission to delete this comment",
+                status_code=403,
+            )
+
         db_access.delete(_db_comment)
         db_access.commit()
 
