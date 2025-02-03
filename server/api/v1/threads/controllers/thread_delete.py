@@ -33,9 +33,7 @@ async def delete_thread(current_user: "User", db_access: Session, thread_id: str
         db_access.delete(_db_thread)
         db_access.commit()
 
-        return _db_thread.serialize(
-            exclude={"author_id", "content", "created_at", "updated_at", "title"}
-        )
+        return _db_thread.serialize()
 
     except Exception as error:
         raise error
