@@ -37,3 +37,14 @@ class Comment(SQLModel, table=True):
             "thread_id": str(self.thread_id) if self.thread_id else None,
             "updated_at": self.updated_at.isoformat(),
         }
+
+    def serialize(self, depth=1, exclude=None, include=None):
+        from utils.model import serialize_model
+
+        return serialize_model(
+            depth=depth, exclude=exclude, include=include, table_instance=self
+        )
+
+
+class CommentCreateForm(SQLModel):
+    content: str = Field(..., min_length=10, description="Thread content")

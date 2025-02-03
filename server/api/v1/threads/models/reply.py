@@ -39,3 +39,10 @@ class Reply(SQLModel, table=True):
             "id": str(self.id),
             "updated_at": self.updated_at.isoformat(),
         }
+
+    def serialize(self, depth=1, exclude=None, include=None):
+        from utils.model import serialize_model
+
+        return serialize_model(
+            depth=depth, exclude=exclude, include=include, table_instance=self
+        )

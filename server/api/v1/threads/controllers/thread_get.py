@@ -27,7 +27,7 @@ async def get_thread(thread_id: str, db_access: Session) -> dict[str, Any]:
             )
 
         return _thread.serialize(
-            include={"author": True},
+            include={"author": True, "comments": True},
             exclude={"author": {"firstname", "lastname", "password", "registered_at"}},
         )
 

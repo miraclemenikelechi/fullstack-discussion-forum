@@ -41,4 +41,5 @@ class User(SQLModel, table=True):
             table_instance=self,
         )
 
+
 # include={"threads": True}

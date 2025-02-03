@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING, Optional
 from uuid import UUID, uuid4
 
 from sqlmodel import Field, Relationship, SQLModel
-from utils.model import serialize_model
 
 if TYPE_CHECKING:
     from api.v1.user.models.user import User
@@ -25,7 +24,15 @@ class Thread(SQLModel, table=True):
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
 
+    def __init__(self, **kw):
+        super().__init__(**kw)
+
+        if "comments" not in kw:
+            self.comments = []
+
     def serialize(self, depth=1, exclude=None, include=None):
+        from utils.model import serialize_model
+
         return serialize_model(
             depth=depth, exclude=exclude, include=include, table_instance=self
         )

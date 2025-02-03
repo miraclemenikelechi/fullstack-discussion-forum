@@ -1,6 +1,6 @@
 from typing import Any
 
-from sqlmodel import SQLModel
+from sqlmodel import Relationship, SQLModel
 
 
 def serialize_model(
@@ -35,7 +35,7 @@ def serialize_model(
     if include is None:
         include = dict()
 
-    _exclude_as_dict = dict() if isinstance(exclude, dict) else exclude
+    _exclude_as_dict: dict | set[str] = dict() if isinstance(exclude, dict) else exclude
 
     _model: dict[str, Any] = table_instance.model_dump(
         exclude=(set(exclude) if isinstance(exclude, set) else set()),
@@ -50,7 +50,7 @@ def serialize_model(
     for _relation, _should_include in include.items():
         _data = getattr(table_instance, _relation, None)
 
-        if _should_include and _data:
+        if _should_include:
             _nested_include = (
                 _should_include if isinstance(_should_include, dict) else dict()
             )
@@ -60,15 +60,19 @@ def serialize_model(
             )
 
             if isinstance(_data, list):
-                _model[_relation] = [
-                    serialize_model(
-                        table_instance=table,
-                        exclude=_nested_exclude,
-                        include=_nested_include,
-                        depth=depth - 1,
-                    )
-                    for table in _data
-                ]
+                _model[_relation] = (
+                    [
+                        serialize_model(
+                            table_instance=table,
+                            exclude=_nested_exclude,
+                            include=_nested_include,
+                            depth=depth - 1,
+                        )
+                        for table in _data
+                    ]
+                    if _data
+                    else list()
+                )
 
             elif _data is not None:
                 _model[_relation] = serialize_model(
@@ -76,6 +80,16 @@ def serialize_model(
                     exclude=_nested_exclude,
                     include=_nested_include,
                     depth=depth - 1,
+                )
+
+            else:
+                _relation_attr_type = getattr(type(table_instance), _relation, None)
+
+                _model[_relation] = (
+                    list()
+                    if isinstance(_relation_attr_type, Relationship)
+                    and _relation_attr_type.is_list
+                    else None
                 )
 
     return dict(sorted(_model.items()))
