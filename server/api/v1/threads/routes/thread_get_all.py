@@ -13,11 +13,11 @@ router = APIRouter(tags=["thread"])
 
 @router.get(
     path="/",
-    status_code=200,
     responses={
         200: {"model": ResponseDataModel},
         500: {"model": ResponseErrorModel},
     },
+    status_code=200,
 )
 async def get_all_threads(session: Annotated[Session, Depends(db_session)]):
     try:
@@ -37,4 +37,3 @@ async def get_all_threads(session: Annotated[Session, Depends(db_session)]):
             status_code=500,
             success=False,
         ).response()
-    pass
